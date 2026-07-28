@@ -11,7 +11,7 @@ import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDt
 import site.yesaido.ruleengine_server.registry.service.CultivationInfoService;
 
 @RequiredArgsConstructor
-@RabbitListener(queues = "${rabbitmq.queue.cultivation-info}", errorHandler = "validationErrorHandler")
+@RabbitListener(queues = "${custom-rabbitmq.queue.cultivation-info}", errorHandler = "validationErrorHandler")
 @Component
 public class CultivationInfoConsumer {
 

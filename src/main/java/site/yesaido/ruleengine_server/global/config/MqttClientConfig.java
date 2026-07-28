@@ -1,5 +1,6 @@
 package site.yesaido.ruleengine_server.global.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Configuration
 public class MqttClientConfig {
 
@@ -27,6 +29,7 @@ public class MqttClientConfig {
 
     @Bean
     public MqttAsyncClient mqttAsyncClient() throws MqttException {
+        log.info("MQTT 접속 정보: brokerUrl={}, clientId={}", brokerUrl, clientId);
         return new MqttAsyncClient(brokerUrl, clientId, new MemoryPersistence());
     }
 
@@ -34,8 +37,8 @@ public class MqttClientConfig {
     public MqttConnectionOptions mqttConnectionOptions() {
         MqttConnectionOptions options = new MqttConnectionOptions();
 
-        options.setUserName(userName);
-        options.setPassword(password.getBytes(StandardCharsets.UTF_8));
+//        options.setUserName(userName);
+//        options.setPassword(password.getBytes(StandardCharsets.UTF_8));
 
         options.setAutomaticReconnect(true);
         options.setCleanStart(false);

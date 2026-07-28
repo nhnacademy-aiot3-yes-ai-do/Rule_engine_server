@@ -2,19 +2,31 @@ package site.yesaido.ruleengine_server.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 public class AsyncConfig {
 
-    // ...
+    @Bean(name = "taskExecutor")
+    public Executor taskExecutor() {
+
+        return null;
+    }
 
     @Bean(name = "mqttIngestExecutor")
     public Executor mqttIngestExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        // todo : mqtt용 Executor 작성
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("mqtt-ingest-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
 
-        return null;
+        return executor;
     }
 }

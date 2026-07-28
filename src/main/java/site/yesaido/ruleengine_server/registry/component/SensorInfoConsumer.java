@@ -11,7 +11,7 @@ import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;
 
 @RequiredArgsConstructor
-@RabbitListener(queues = "${rabbitmq.queue.sensor-info}", errorHandler = "validationErrorHandler")
+@RabbitListener(queues = "${custom-rabbitmq.queue.sensor-info}", errorHandler = "validationErrorHandler")
 @Component
 public class SensorInfoConsumer {
 
