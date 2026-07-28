@@ -31,6 +31,8 @@ public class SensorInfoService {
         sensorInfoRepository.upsertSensorInfo(
                 sensorInfoDto
         );
+
+        log.info("sensorInfo 적제: cultivationId={}, sensorType={}", sensorInfoDto.getCultivationId(), sensorInfoDto.getSensorType().name());
     }
 
     public void deleteSensorInfo(SensorInfoDeleteDto sensorInfoDeleteDto) {
@@ -43,8 +45,10 @@ public class SensorInfoService {
         }
 
         sensorInfoRepository.deleteSensorInfo(
-                sensorInfoDeleteDto.getCultivationId(),
-                sensorInfoDeleteDto.getSensorType()
+                cultivationId,
+                sensorType
         );
+
+        log.info("sensorInfo 삭제: cultivationId={}, sensorType={}", cultivationId, sensorType.name());
     }
 }

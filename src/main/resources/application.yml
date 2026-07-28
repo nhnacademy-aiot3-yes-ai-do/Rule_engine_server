@@ -3,25 +3,26 @@ spring:
         name: ruleEngine_server
     config:
         import: optional:file:.env[.properties]
-    profiles:
-        active: dev
 
     data:
         redis:
+            host: ${REDIS_HOST}
             port: ${REDIS_PORT}
             password: ${REDIS_PASSWORD}
             database: ${REDIS_DATABASE}
 
     rabbitmq:
+        host: ${RABBITMQ_HOST}
         port: ${RABBITMQ_PORT}
         username: ${RABBITMQ_USERNAME}
         password: ${RABBITMQ_PASSWORD}
 
 mqtt:
+    broker-url: ${MQTT_BROKER_URL}
     client-id: ${MQTT_CLIENT_ID}
     username: ${MQTT_USERNAME}
     password: ${MQTT_PASSWORD}
-    subscribe-topics: ${MQTT_SUBSCRIBE_TOPICS}
+    subscribe-topics: "mushroom/#, application/#"
 
 custom-rabbitmq:
     queue:

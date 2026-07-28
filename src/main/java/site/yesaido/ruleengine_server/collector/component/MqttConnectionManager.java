@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -20,8 +22,8 @@ public class MqttConnectionManager implements SmartLifecycle {
     private final MqttConnectionOptions mqttConnectionOptions;
     private final MqttMessageSubscriber mqttMessageSubscriber;
 
-//    @Value("${mqtt.subscribe-topics}")
-//    private String[] topics;
+    @Value("${mqtt.subscribe-topics}")
+    private String[] topics;
 
     private volatile boolean running = false;
 
@@ -32,10 +34,11 @@ public class MqttConnectionManager implements SmartLifecycle {
             mqttAsyncClient.setCallback(mqttMessageSubscriber);
             mqttAsyncClient.connect(mqttConnectionOptions).waitForCompletion();
 
-            MqttSubscription[] mqttSubscriptions = new MqttSubscription[]{
-                    new MqttSubscription("mushroom/#", 1),
-                    new MqttSubscription("iot/#", 1)
-            };
+            log.info("등록된 토픽: {}", Arrays.toString(topics));
+            MqttSubscription[] mqttSubscriptions = Arrays.stream(topics)
+                            .map(topic -> topic.trim())
+                            .map(topic -> new MqttSubscription(topic, 0))
+                            .toArray(size -> new MqttSubscription[size]);
 
             mqttAsyncClient.subscribe(mqttSubscriptions).waitForCompletion();
 
