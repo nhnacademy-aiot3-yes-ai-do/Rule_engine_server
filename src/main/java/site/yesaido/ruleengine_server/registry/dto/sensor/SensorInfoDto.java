@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import site.yesaido.ruleengine_server.registry.dto.SensorType;
+import site.yesaido.ruleengine_server.global.dto.SensorType;
 
 /**
  * 센서 정보를 담고 있는 DTO입니다.

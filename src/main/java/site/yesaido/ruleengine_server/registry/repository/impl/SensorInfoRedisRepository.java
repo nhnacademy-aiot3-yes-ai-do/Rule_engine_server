@@ -3,7 +3,7 @@ package site.yesaido.ruleengine_server.registry.repository.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import site.yesaido.ruleengine_server.registry.dto.SensorType;
+import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 
@@ -15,34 +15,34 @@ import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 @Repository
 public class SensorInfoRedisRepository implements SensorInfoRepository {
 
-    private static final String KEY_TEMPLATE = "sensor:%d:%s";
+    private static final String KEY_TEMPLATE = "sensor:%s:%s";
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void upsertSensorInfo(SensorInfoDto dto) {
         redisTemplate.opsForValue().set(
-                buildKey(dto.getCultivationId(), dto.getSensorType()),
+                buildKey(dto.getDeviceEui(), dto.getSensorType()),
                 dto
         );
     }
 
     @Override
-    public void deleteSensorInfo(Long cultivationId, SensorType sensorType) {
+    public void deleteSensorInfo(String deviceEui, SensorType sensorType) {
         redisTemplate.delete(
-                buildKey(cultivationId, sensorType)
+                buildKey(deviceEui, sensorType)
         );
     }
 
     @Override
-    public boolean exists(Long cultivationId, SensorType sensorType) {
+    public boolean exists(String deviceEui, SensorType sensorType) {
         return Boolean.TRUE.equals(
-                redisTemplate.hasKey(buildKey(cultivationId, sensorType))
+                redisTemplate.hasKey(buildKey(deviceEui, sensorType))
         );
     }
 
     // ==================================================
 
-    private String buildKey(Long cultivationId, SensorType sensorType) {
-        return KEY_TEMPLATE.formatted(cultivationId, sensorType.name());
+    private String buildKey(String deviceEui, SensorType sensorType) {
+        return KEY_TEMPLATE.formatted(deviceEui, sensorType.name());
     }
 }

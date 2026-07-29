@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import site.yesaido.ruleengine_server.registry.dto.SensorType;
+import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteDto;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
@@ -45,14 +45,15 @@ class SensorInfoServiceTest {
 
     @Test
     void test_deleteSensorInfo() {
-        when(sensorInfoRepository.exists(anyLong(), any(SensorType.class))).thenReturn(true);
+        when(sensorInfoRepository.exists(anyString(), any(SensorType.class))).thenReturn(true);
 
         SensorInfoDeleteDto deleteDto = new SensorInfoDeleteDto();
         deleteDto.setCultivationId(1L);
+        deleteDto.setDeviceEui("device_eui");
         deleteDto.setSensorType(SensorType.TEMPERATURE);
         sensorInfoService.deleteSensorInfo(deleteDto);
 
-        verify(sensorInfoRepository, times(1)).exists(anyLong(), any(SensorType.class));
-        verify(sensorInfoRepository, times(1)).deleteSensorInfo(anyLong(), any(SensorType.class));
+        verify(sensorInfoRepository, times(1)).exists(anyString(), any(SensorType.class));
+        verify(sensorInfoRepository, times(1)).deleteSensorInfo(anyString(), any(SensorType.class));
     }
 }

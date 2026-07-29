@@ -1,4 +1,4 @@
-package site.yesaido.ruleengine_server.registry.dto;
+package site.yesaido.ruleengine_server.global.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
