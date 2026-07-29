@@ -20,8 +20,8 @@ spring:
 mqtt:
     broker-url: ${MQTT_BROKER_URL}
     client-id: ${MQTT_CLIENT_ID}
-    username: ${MQTT_USERNAME}
-    password: ${MQTT_PASSWORD}
+#    username: ${MQTT_USERNAME}
+#    password: ${MQTT_PASSWORD}
     subscribe-topics: "mushroom/#, application/#"
 
 custom-rabbitmq:
