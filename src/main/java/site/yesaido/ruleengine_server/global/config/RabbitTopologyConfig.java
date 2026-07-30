@@ -14,10 +14,10 @@ public class RabbitTopologyConfig {
 
     private static final String MUSH_EXCHANGE = "mushmush-exchange";
 
-    @Value("${rabbitmq.queue.cultivation-info}")
+    @Value("${custom-rabbitmq.queue.cultivation-info}")
     private String cultivationInfoQueueName;
 
-    @Value("${rabbitmq.queue.sensor-info}")
+    @Value("${custom-rabbitmq.queue.sensor-info}")
     private String sensorInfoQueueName;
 
     @Bean
