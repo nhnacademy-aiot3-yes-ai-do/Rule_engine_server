@@ -11,9 +11,20 @@ spring:
             password: ${REDIS_PASSWORD}
             database: ${REDIS_DATABASE}
 
+    rabbitmq:
+        host: ${RABBITMQ_HOST}
+        port: ${RABBITMQ_PORT}
+        username: ${RABBITMQ_USERNAME}
+        password: ${RABBITMQ_PASSWORD}
 
+mqtt:
+    broker-url: ${MQTT_BROKER_URL}
+    client-id: ${MQTT_CLIENT_ID}
+#    username: ${MQTT_USERNAME}
+#    password: ${MQTT_PASSWORD}
+    subscribe-topics: "mushroom/#, application/#"
 
-rabbitmq:
+custom-rabbitmq:
     queue:
         # todo : 작명 규칙 논의에 따른 큐 이름 변경
         cultivation-info: "mushmush.cultivation-info.queue"

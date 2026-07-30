@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import site.yesaido.ruleengine_server.registry.dto.SensorType;
+import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.impl.SensorInfoRedisRepository;
 
@@ -50,7 +50,7 @@ class SensorInfoRepositoryTest {
 
     @Test
     void test_deleteSensorInfo() {
-        repository.deleteSensorInfo(1L, SensorType.TEMPERATURE);
+        repository.deleteSensorInfo(dto.getDeviceEui(), dto.getSensorType());
 
         verify(redisTemplate, times(1)).delete(anyString());
     }
@@ -59,7 +59,7 @@ class SensorInfoRepositoryTest {
     void test_exists_returnTrue() {
         when(redisTemplate.hasKey(anyString())).thenReturn(true);
 
-        Assertions.assertTrue(repository.exists(1L, SensorType.TEMPERATURE));
+        Assertions.assertTrue(repository.exists(dto.getDeviceEui(), dto.getSensorType()));
         verify(redisTemplate, times(1)).hasKey(anyString());
     }
 
@@ -67,7 +67,7 @@ class SensorInfoRepositoryTest {
     void test_exists_returnFalse() {
         when(redisTemplate.hasKey(anyString())).thenReturn(false);
 
-        Assertions.assertFalse(repository.exists(1L, SensorType.TEMPERATURE));
+        Assertions.assertFalse(repository.exists(dto.getDeviceEui(), dto.getSensorType()));
         verify(redisTemplate, times(1)).hasKey(anyString());
     }
 }

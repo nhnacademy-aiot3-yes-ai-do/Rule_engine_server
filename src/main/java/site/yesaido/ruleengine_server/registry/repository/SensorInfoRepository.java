@@ -1,6 +1,6 @@
 package site.yesaido.ruleengine_server.registry.repository;
 
-import site.yesaido.ruleengine_server.registry.dto.SensorType;
+import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
 
 /**
@@ -23,18 +23,18 @@ public interface SensorInfoRepository {
 
     /**
      * [Delete] 센서 정보를 삭제합니다.
-     * @param cultivationId 삭제할 센서가 속한 재배 환경의 id
+     * @param deviceEui 삭제할 센서의 deviceEui
      * @param sensorType 삭제할 센서 종류
      */
-    void deleteSensorInfo(Long cultivationId, SensorType sensorType);
+    void deleteSensorInfo(String deviceEui, SensorType sensorType);
 
     // ==================================================
 
     /**
      * 센서 정보에 대한 존재 여부를 반환합니다.
-     * @param cultivationId 존재 여부를 확인할 센서가 속한 재배 환경의 id
+     * @param deviceEui 삭제할 센서의 deviceEui
      * @param sensorType 존재 여부를 확인할 센서 종류
      * @return {@code true} 센서 정보가 존재할 경우
      */
-    boolean exists(Long cultivationId, SensorType sensorType);
+    boolean exists(String deviceEui, SensorType sensorType);
 }

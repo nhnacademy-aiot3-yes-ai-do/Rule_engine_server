@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import site.yesaido.ruleengine_server.registry.dto.SensorType;
+import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteDto;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;

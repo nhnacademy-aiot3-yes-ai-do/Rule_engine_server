@@ -4,9 +4,9 @@
 
 ## 프로젝트 개요
 
-**Collector Service**와 **RuleEngine** 두 부분으로 구성됩니다.
+**Collector**와 **RuleEngine**, 그리고 **Registry**로 구성됩니다.
 
-### Collector Service
+### Collector
 - MQTT를 통해 센서(온도, 습도, CO2 등)로부터 발행되는 데이터를 구독합니다.
 - 수신한 데이터를 파싱·정제하여 처리 가능한 형태로 변환합니다.
 - 정제된 데이터를 RuleEngine으로 전달합니다.
@@ -16,6 +16,10 @@
 - 값이 '정상 범위'인지 '이상 상황'인지 판단합니다.
 - 판단 결과에 따라 필요한 후속 처리로 데이터를 전달합니다.
 
+### Registry
+- Collector의 정제·검증과 RuleEngine의 판단에서 사용할 데이터를 수신하여 Redis에 저장합니다.
+- 
+
 ## 기술 스택
 - Spring Boot
 - MQTT
@@ -23,11 +27,10 @@
 - Lombok
 
 ## 문서
-- [00. 아키텍처 개요](./docs/00.%20아키텍처%20개요.md)
-- [01. CollectorService 구조](./docs/01.%20CollectorService%20구조.md)
-- [02. 데이터 전달(EventListener)](./docs/02.%20데이터%20전달(EventListener).md)
-- [03. RuleEngine](./docs/03.%20RuleEngine.md)
-- [04. RabbitMQ 발행](./docs/04.%20RabbitMQ%20발행.md)
-
-[//]: # (아래 사항은 프로젝트 진행 중 필요하다싶으면 추가)
-[//]: # (- [05. RabbitMQ 실패처리]&#40;./docs/06.%20RabbitMQ%20실패처리.md&#41;)
+- 프로젝트 개요
+  - [00. 아키텍처 개요](./docs/00_프로젝트개요/00.%20아키텍처%20개요.md)
+  - [01. CollectorService 구조](./docs/00_프로젝트개요/01.%20CollectorService%20구조.md)
+  - [02. 데이터 전달(EventListener)](./docs/00_프로젝트개요/02.%20데이터%20전달(EventListener).md)
+  - [03. RuleEngine](./docs/00_프로젝트개요/03.%20RuleEngine.md)
+  - [04. RabbitMQ 발행](./docs/00_프로젝트개요/04.%20RabbitMQ%20발행.md)
+  - [05. 재배 환경 정보](./docs/00_프로젝트개요/05.%20재배%20환경%20및%20센서%20정보.md)

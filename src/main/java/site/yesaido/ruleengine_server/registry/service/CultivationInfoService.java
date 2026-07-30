@@ -18,6 +18,8 @@ public class CultivationInfoService {
         cultivationInfoRepository.upsertCultivationInfo(
                 cultivationInfoDto
         );
+
+        log.info("cultivationInfo 적제: cultivationId={}", cultivationInfoDto.getCultivationId());
     }
 
     public void deleteCultivationInfo(CultivationInfoDeleteDto cultivationInfoDeleteDto) {
@@ -31,6 +33,8 @@ public class CultivationInfoService {
         cultivationInfoRepository.deleteCultivationInfo(
                 cultivationId
         );
+
+        log.info("cultivationInfo 삭제: cultivationId={}", cultivationId);
     }
 
 }
