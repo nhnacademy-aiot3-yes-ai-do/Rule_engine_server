@@ -1,5 +1,6 @@
 package site.yesaido.ruleengine_server.registry.repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.impl.SensorInfoRedisRepository;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,7 +25,10 @@ class SensorInfoRepositoryTest {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Mock
-    ValueOperations<String, Object> valueOperations;
+    private ValueOperations<String, Object> valueOperations;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private SensorInfoRedisRepository repository;
@@ -46,6 +52,31 @@ class SensorInfoRepositoryTest {
         repository.upsertSensorInfo(dto);
 
         verify(valueOperations, times(1)).set(anyString(), any(SensorInfoDto.class));
+    }
+
+    @Test
+    void test_findSensorInfo_success() {
+        Object object = new Object();
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get(anyString())).thenReturn(object);
+        when(objectMapper.convertValue(object, SensorInfoDto.class)).thenReturn(dto);
+
+        Optional<SensorInfoDto> result = repository.findSensorInfo(dto.getDeviceEui(), dto.getSensorType());
+
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertEquals(dto, result.get());
+        verify(valueOperations, times(1)).get(anyString());
+    }
+
+    @Test
+    void test_findSensorInfo_fail() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get(anyString())).thenReturn(null);
+
+        Optional<SensorInfoDto> result = repository.findSensorInfo(dto.getDeviceEui(), dto.getSensorType());
+
+        Assertions.assertTrue(result.isEmpty());
+        verify(objectMapper, never()).convertValue(any(), eq(SensorInfoDto.class));
     }
 
     @Test
