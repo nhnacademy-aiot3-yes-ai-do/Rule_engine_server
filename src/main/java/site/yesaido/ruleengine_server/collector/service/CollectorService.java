@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.collector.support.SensorDataValidator;
+import site.yesaido.ruleengine_server.global.exception.UnsupportedTopicException;
 
 import java.util.List;
 
@@ -34,12 +35,7 @@ public class CollectorService {
         SensorDataParser parser = sensorDataParserList.stream()
                 .filter(p -> p.supports(topic))
                 .findFirst()
-                .orElse(null);
-
-        if (parser == null) {
-            log.warn("처리할 수 없는 토픽: topic={}", topic);
-            return;
-        }
+                .orElseThrow(() -> new UnsupportedTopicException(topic));
 
         List<SensorDataDto> dtoList = parser.parse(topic, payload);
 

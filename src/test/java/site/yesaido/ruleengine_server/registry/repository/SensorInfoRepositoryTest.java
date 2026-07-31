@@ -34,7 +34,7 @@ class SensorInfoRepositoryTest {
         dto = new SensorInfoDto(
                 1L,
                 "장소", "위치",
-                "device_model", "device_eui",
+                "device_model", "device_name", "device_eui",
                 SensorType.TEMPERATURE
         );
     }
