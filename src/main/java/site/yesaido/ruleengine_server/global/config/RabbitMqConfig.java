@@ -22,6 +22,14 @@ public class RabbitMqConfig {
     @Bean
     public MessageConverter jsonMessageConverter() {
         JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter();
+
+        converter.setClassMapper(classMapper());
+
+        return converter;
+    }
+
+    @Bean
+    public DefaultClassMapper classMapper() {
         DefaultClassMapper classMapper = new DefaultClassMapper();
 
         Map<String, Class<?>> idClassMapping = new HashMap<>();
@@ -31,7 +39,6 @@ public class RabbitMqConfig {
         idClassMapping.put("sensor.delete", SensorInfoDeleteDto.class);
         classMapper.setIdClassMapping(idClassMapping);
 
-        converter.setClassMapper(classMapper);
-        return converter;
+        return classMapper;
     }
 }

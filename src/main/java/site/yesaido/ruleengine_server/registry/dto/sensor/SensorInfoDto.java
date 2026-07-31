@@ -31,6 +31,9 @@ public class SensorInfoDto {
     private String deviceModel;
 
     @NotBlank
+    private String deviceName;
+
+    @NotBlank
     private String deviceEui;
 
     @NotNull
