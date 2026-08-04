@@ -46,7 +46,7 @@ class CollectorServiceTest {
     void test_ingest_fail_throwInvalidTopicFormatException() {
         when(sensorDataParser.supports(anyString())).thenReturn(true);
         when(sensorDataParser.parse(anyString(), anyString()))
-                .thenThrow(new InvalidTopicFormatException(SupportedTopic.MUSHROOM, "mushroom/a/b/c/d", "토픽 요소 개수가 올바르지 않습니다."));
+                .thenThrow(new InvalidTopicFormatException(SupportedTopic.MUSHROOM, "토픽 요소 개수가 올바르지 않습니다.", "mushroom/a/b/c/d"));
 
         collectorService.ingest("mushroom/a/b/c/d", "{}");
 

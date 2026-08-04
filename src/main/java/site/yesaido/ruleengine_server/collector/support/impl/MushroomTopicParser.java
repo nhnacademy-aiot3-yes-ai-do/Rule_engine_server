@@ -44,8 +44,8 @@ public class MushroomTopicParser implements SensorDataParser {
         if (parts.length != 6) {
             throw new InvalidTopicFormatException(
                     this.getSupportedTopic(),
-                    topic,
-                    "토픽 요소 개수가 올바르지 않습니다. (expected: %d, actual: %d)".formatted(6, parts.length)
+                    "토픽 요소 개수가 올바르지 않습니다. (expected: %d, actual: %d)".formatted(6, parts.length),
+                    topic
             );
         }
 
@@ -56,13 +56,15 @@ public class MushroomTopicParser implements SensorDataParser {
         SensorType sensorType = SensorType.from(parts[5]);
 
         MushroomPayload parsed = parsePayload(payload);
-
+        if (parsed.value == null || parsed.time == null) {
+            throw new InvalidPayloadFormatException(SupportedTopic.MUSHROOM, "페이로드 구성이 올바르지 않습니다. (필수 요소: value, time)", payload);
+        }
         SensorDataDto sensorDataDto = new SensorDataDto(
                 place, location,
                 deviceModel, parsed.deviceName, deviceEui,
                 sensorType,
                 parsed.value,
-                parsed.time == null ? null : parsed.time.toLocalDateTime()
+                parsed.time.toLocalDateTime()
         );
 
         return List.of(sensorDataDto);

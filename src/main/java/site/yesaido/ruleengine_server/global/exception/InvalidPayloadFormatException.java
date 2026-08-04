@@ -13,10 +13,10 @@ public class InvalidPayloadFormatException extends RuntimeException {
      * {@link InvalidPayloadFormatException}을 생성합니다.
      *
      * @param supportedTopic 처리 중이던 대상의 토픽 Enum
-     * @param payload        수신한 페이로드
      * @param reason         페이로드 형식이 올바르지 않은 사유
+     * @param payload        수신한 페이로드
      */
-    public InvalidPayloadFormatException(SupportedTopic supportedTopic, String payload, String reason) {
+    public InvalidPayloadFormatException(SupportedTopic supportedTopic, String reason, String payload) {
         super("[%s] 페이로드 형식이 올바르지 않습니다. 사유=%s, 수신한 페이로드=%s".formatted(
                 supportedTopic.name(),
                 reason,
