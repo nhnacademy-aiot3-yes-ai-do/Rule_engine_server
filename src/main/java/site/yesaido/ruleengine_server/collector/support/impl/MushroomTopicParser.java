@@ -1,5 +1,6 @@
 package site.yesaido.ruleengine_server.collector.support.impl;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -8,9 +9,10 @@ import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
+import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 import site.yesaido.ruleengine_server.global.exception.InvalidTopicFormatException;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -35,10 +37,6 @@ public class MushroomTopicParser implements SensorDataParser {
         );
     }
 
-    /**
-     * topic: mushroom/{place}/{location}/{device_model}/{device_eui}/{sensor_type}
-     * payload: {"value":995.9,"time":"2026-07-10T08:26:17.922+00:00","device_name":"AM107-067999","device_eui":"24e124128c067999"}
-     */
     @Override
     public List<SensorDataDto> parse(String topic, String payload) {
 
@@ -63,7 +61,8 @@ public class MushroomTopicParser implements SensorDataParser {
                 place, location,
                 deviceModel, parsed.deviceName, deviceEui,
                 sensorType,
-                parsed.value, parsed.time
+                parsed.value,
+                parsed.time == null ? null : parsed.time.toLocalDateTime()
         );
 
         return List.of(sensorDataDto);
@@ -72,9 +71,15 @@ public class MushroomTopicParser implements SensorDataParser {
     // ======================================================================
 
     private record MushroomPayload(
+
             Double value,
-            LocalDateTime time,
+
+            OffsetDateTime time,
+
+            @JsonProperty("device_name")
             String deviceName,
+
+            @JsonProperty("device_eui")
             String deviceEui
     ) {}
 
@@ -82,7 +87,11 @@ public class MushroomTopicParser implements SensorDataParser {
         try {
             return objectMapper.readValue(payload, MushroomPayload.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new InvalidPayloadFormatException(
+                    this.getSupportedTopic(),
+                    "JSON 파싱에 실패했습니다: %s".formatted(e.getOriginalMessage()),
+                    payload
+            );
         }
     }
 }

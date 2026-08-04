@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.collector.support.SensorDataValidator;
+import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
+import site.yesaido.ruleengine_server.global.exception.InvalidTopicFormatException;
 import site.yesaido.ruleengine_server.global.exception.UnsupportedTopicException;
 
 import java.util.List;
@@ -37,9 +39,18 @@ public class CollectorService {
                 .findFirst()
                 .orElseThrow(() -> new UnsupportedTopicException(topic));
 
-        List<SensorDataDto> dtoList = parser.parse(topic, payload);
+        List<SensorDataDto> dtoList;
+        try {
+            dtoList = parser.parse(topic, payload);
 
-        dtoList.forEach(dto -> validateAndPublish(dto));
+        } catch (InvalidTopicFormatException | InvalidPayloadFormatException e) {
+            log.warn("파싱 실패 - 폐기: {}", e.getMessage());
+            return;
+        } catch (Exception e) {
+            log.error("예상치 못한 오류 파싱 에러", e);
+            return;
+        }
+        dtoList.forEach(this::validateAndPublish);
     }
 
     /**
@@ -51,6 +62,8 @@ public class CollectorService {
             log.warn("[Collector - Validation] 검증 실패: {}", sensorDataDto);
             return;
         }
+
+        log.info("이벤트 발행 전: {}", sensorDataDto);
 
         // todo : ApplicationEventPublisher 사용
         log.info("eventPublisher");
