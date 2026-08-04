@@ -9,9 +9,11 @@ import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
+import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +58,21 @@ public class ChirpStackTopicParser implements SensorDataParser {
         String deviceModel = deviceInfo.path("deviceProfileName").asText(null);
         String deviceName = deviceInfo.path("deviceName").asText(null);
         String deviceEui = deviceInfo.path("devEui").asText(null);
+        if (deviceEui == null) {
+            throw new InvalidPayloadFormatException(
+                    this.getSupportedTopic(),
+                    "필수 필드(deviceInfo.devEui)가 누락되었습니다.",
+                    payload
+            );
+        }
         LocalDateTime time = parseTime(root.path("time").asText(null));
+        if (time == null) {
+            throw new InvalidPayloadFormatException(
+                    this.getSupportedTopic(),
+                    "필수 필드(time)가 누락되었습니다.",
+                    payload
+            );
+        }
 
         JsonNode object = root.path("object");
 
@@ -82,12 +98,25 @@ public class ChirpStackTopicParser implements SensorDataParser {
         try {
             return objectMapper.readTree(payload);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new InvalidPayloadFormatException(
+                    this.getSupportedTopic(),
+                    "JSON 파싱에 실패했습니다: %s".formatted(e.getOriginalMessage()),
+                    payload
+            );
         }
     }
 
     private LocalDateTime parseTime(String isoTime) {
         if (isoTime == null) return null;
-        return OffsetDateTime.parse(isoTime).toLocalDateTime();
+
+        try {
+            return OffsetDateTime.parse(isoTime).toLocalDateTime();
+        } catch (DateTimeParseException e) {
+            throw new InvalidPayloadFormatException(
+                    this.getSupportedTopic(),
+                    "time 필드 형식이 올바르지 않습니다. 지원 형식: OffsetDateTime (예시: yyyy-MM-dd'T'HH:mm:ss.SSSXXX 또는 2026-07-10T08:26:17.922+00:00)",
+                    isoTime
+            );
+        }
     }
 }
