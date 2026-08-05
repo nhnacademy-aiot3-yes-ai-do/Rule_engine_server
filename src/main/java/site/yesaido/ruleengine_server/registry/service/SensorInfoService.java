@@ -34,7 +34,7 @@ public class SensorInfoService {
                 sensorInfoDto
         );
 
-        log.info("sensorInfo 적제: cultivationId={}, sensorType={}", sensorInfoDto.getCultivationId(), sensorInfoDto.getSensorType().name());
+        log.debug("sensorInfo 적제: cultivationId={}, sensorType={}", sensorInfoDto.getCultivationId(), sensorInfoDto.getSensorType().name());
     }
 
     public Optional<SensorInfoDto> findSensorInfo(String deviceEui, SensorType sensorType) {
@@ -56,6 +56,6 @@ public class SensorInfoService {
                 sensorType
         );
 
-        log.info("sensorInfo 삭제: cultivationId={}, deviceEui={}, sensorType={}", cultivationId, deviceEui, sensorType.name());
+        log.debug("sensorInfo 삭제: cultivationId={}, deviceEui={}, sensorType={}", cultivationId, deviceEui, sensorType.name());
     }
 }

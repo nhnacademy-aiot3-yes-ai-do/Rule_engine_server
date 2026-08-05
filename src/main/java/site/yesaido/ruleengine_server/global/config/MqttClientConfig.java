@@ -19,24 +19,15 @@ public class MqttClientConfig {
     @Value("${mqtt.client-id}")
     private String clientId;
 
-    // 필요에 따라 userName & password 를 사용합니다.
-    // @Value("${mqtt.username}")
-    // private String userName;
-    // @Value("${mqtt.password}")
-    // private String password;
-
     @Bean
     public MqttAsyncClient mqttAsyncClient() throws MqttException {
-        log.info("MQTT 접속 정보: brokerUrl={}, clientId={}", brokerUrl, clientId);
+        log.debug("MQTT 접속 정보: brokerUrl={}, clientId={}", brokerUrl, clientId);
         return new MqttAsyncClient(brokerUrl, clientId, new MemoryPersistence());
     }
 
     @Bean
     public MqttConnectionOptions mqttConnectionOptions() {
         MqttConnectionOptions options = new MqttConnectionOptions();
-
-        // options.setUserName(userName);
-        // options.setPassword(password.getBytes(StandardCharsets.UTF_8));
 
         options.setAutomaticReconnect(true);
         options.setCleanStart(false);

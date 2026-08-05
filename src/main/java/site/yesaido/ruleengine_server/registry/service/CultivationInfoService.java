@@ -19,7 +19,7 @@ public class CultivationInfoService {
                 cultivationInfoDto
         );
 
-        log.info("cultivationInfo 적제: cultivationId={}", cultivationInfoDto.getCultivationId());
+        log.debug("cultivationInfo 적제: cultivationId={}", cultivationInfoDto.getCultivationId());
     }
 
     public void deleteCultivationInfo(CultivationInfoDeleteDto cultivationInfoDeleteDto) {
@@ -34,7 +34,7 @@ public class CultivationInfoService {
                 cultivationId
         );
 
-        log.info("cultivationInfo 삭제: cultivationId={}", cultivationId);
+        log.debug("cultivationInfo 삭제: cultivationId={}", cultivationId);
     }
 
 }

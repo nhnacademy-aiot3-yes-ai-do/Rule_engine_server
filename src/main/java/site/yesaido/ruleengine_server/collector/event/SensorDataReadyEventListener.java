@@ -14,6 +14,6 @@ public class SensorDataReadyEventListener {
     @Async("taskExecutor")
     @EventListener
     public void handleSensorDataReady(SensorDataReadyEvent event) {
-        log.info("이벤트 수신: {}", event.getSensorDataDto());
+        log.debug("이벤트 수신: {}", event.getSensorDataDto());
     }
 }

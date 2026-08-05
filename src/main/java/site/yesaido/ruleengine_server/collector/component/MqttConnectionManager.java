@@ -28,21 +28,21 @@ public class MqttConnectionManager implements SmartLifecycle {
 
     @Override
     public void start() {
-        log.info(">>> MqttConnectionManager.start() 호출됨");
+        log.debug(">>> MqttConnectionManager.start() 호출됨");
         try {
             mqttAsyncClient.setCallback(mqttMessageSubscriber);
             mqttAsyncClient.connect(mqttConnectionOptions).waitForCompletion();
 
-            log.info("등록된 토픽: {}", Arrays.toString(topics));
+            log.debug("등록된 토픽: {}", Arrays.toString(topics));
             MqttSubscription[] mqttSubscriptions = Arrays.stream(topics)
-                            .map(topic -> topic.trim())
+                            .map(String::trim)
                             .map(topic -> new MqttSubscription(topic, 0))
-                            .toArray(size -> new MqttSubscription[size]);
+                            .toArray(MqttSubscription[]::new);
 
             mqttAsyncClient.subscribe(mqttSubscriptions).waitForCompletion();
 
             running = true;
-            log.info("MQTT 연결 및 구독 완료 - topics={}", (Object) mqttSubscriptions);
+            log.debug("MQTT 연결 및 구독 완료 - topics={}", (Object) mqttSubscriptions);
         } catch (Exception e) {
             throw new IllegalStateException("MQTT 연결 실패: ", e);
         }

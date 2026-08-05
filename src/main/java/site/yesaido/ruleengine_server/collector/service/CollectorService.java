@@ -36,7 +36,7 @@ public class CollectorService {
      * @param payload 수신된 페이로드
      */
     public void ingest(String topic, String payload) {
-        log.info("[CollectorService] 메세지 수신 완료: topic={}, payload={}", topic, payload);
+        log.debug("[CollectorService] 메세지 수신 완료: topic={}, payload={}", topic, payload);
 
         SensorDataParser parser = sensorDataParserList.stream()
                 .filter(p -> p.supports(topic))

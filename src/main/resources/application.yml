@@ -33,3 +33,7 @@ custom-rabbitmq:
         # todo : 작명 규칙 논의에 따른 큐 이름 변경
         cultivation-info: "mushmush.cultivation-info.queue"
         sensor-info: "mushmush.sensor-info.queue"
+
+logging:
+    level:
+        site.yesaido.ruleengine_server: debug
