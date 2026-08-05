@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
+import site.yesaido.ruleengine_server.collector.event.SensorDataReadyEvent;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.collector.support.SensorDataValidator;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
@@ -26,12 +28,14 @@ class CollectorServiceTest {
     private SensorDataParser sensorDataParser;
     @Mock
     private SensorDataValidator sensorDataValidator;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private CollectorService collectorService;
 
     @BeforeEach
     void setup() {
-        collectorService = new CollectorService(List.of(sensorDataParser), sensorDataValidator);
+        collectorService = new CollectorService(List.of(sensorDataParser), sensorDataValidator, eventPublisher);
     }
 
     @Test
@@ -64,5 +68,33 @@ class CollectorServiceTest {
         verify(sensorDataValidator, never()).isValid(any(SensorDataDto.class));
     }
 
-    // ApplicationEventPublisher 적용된 이후 테스트 추가 작성 예정
+    @Test
+    void test_ingest_fail_validateFail() {
+        String topic = "mushroom/a/b/c/d/TEMPERATURE";
+        String payload = "{}";
+        SensorDataDto dto = mock(SensorDataDto.class);
+
+        when(sensorDataParser.supports(topic)).thenReturn(true);
+        when(sensorDataParser.parse(topic, payload)).thenReturn(List.of(dto));
+        when(sensorDataValidator.isValid(dto)).thenReturn(false);
+
+        collectorService.ingest(topic, payload);
+
+        verify(eventPublisher, never()).publishEvent(any(SensorDataReadyEvent.class));
+    }
+
+    @Test
+    void test_ingest_success() {
+        String topic = "mushroom/a/b/c/d/TEMPERATURE";
+        String payload = "{}";
+        SensorDataDto dto = mock(SensorDataDto.class);
+
+        when(sensorDataParser.supports(topic)).thenReturn(true);
+        when(sensorDataParser.parse(topic, payload)).thenReturn(List.of(dto));
+        when(sensorDataValidator.isValid(dto)).thenReturn(true);
+
+        collectorService.ingest(topic, payload);
+
+        verify(eventPublisher, times(1)).publishEvent(any(SensorDataReadyEvent.class));
+    }
 }
