@@ -2,8 +2,10 @@ package site.yesaido.ruleengine_server.collector.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
+import site.yesaido.ruleengine_server.collector.event.SensorDataReadyEvent;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.collector.support.SensorDataValidator;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
@@ -25,6 +27,8 @@ public class CollectorService {
 
     private final List<SensorDataParser> sensorDataParserList;
     private final SensorDataValidator sensorDataValidator;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * MQTT 구독을 통해 수신한 메세지를 처리하는 진입점입니다.
@@ -63,9 +67,6 @@ public class CollectorService {
             return;
         }
 
-        log.info("이벤트 발행 전: {}", sensorDataDto);
-
-        // todo : ApplicationEventPublisher 사용
-        log.info("eventPublisher");
+        eventPublisher.publishEvent(new SensorDataReadyEvent(sensorDataDto));
     }
 }
