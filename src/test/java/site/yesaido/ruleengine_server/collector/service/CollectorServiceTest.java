@@ -80,7 +80,7 @@ class CollectorServiceTest {
 
         collectorService.ingest(topic, payload);
 
-        verify(eventPublisher, never()).publishEvent(any(SensorDataReadyEvent.class));
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
