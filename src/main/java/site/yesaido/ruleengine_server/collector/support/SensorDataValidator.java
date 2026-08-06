@@ -34,8 +34,8 @@ public class SensorDataValidator {
      * - 등록되어 있는 센서인지 확인합니다.<br>
      * - 물리적으로 유효한 범위인지 확인합니다.<br>
      * - 검증을 통과한 경우 {@code cultivationId}를 채워 넣습니다.
-     * @param sensorDataDto
-     * @return
+     * @param sensorDataDto 검증 대상에 해당하는 센서 데이터
+     * @return {@code true} 검증 대상 센서 데이터가 검증을 통과한 경우
      */
     public boolean isValid(SensorDataDto sensorDataDto) {
 
