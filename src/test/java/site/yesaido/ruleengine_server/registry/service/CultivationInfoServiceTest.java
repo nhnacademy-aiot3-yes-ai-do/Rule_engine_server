@@ -1,5 +1,6 @@
 package site.yesaido.ruleengine_server.registry.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDeleteDto;
 import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
+
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -41,6 +44,26 @@ class CultivationInfoServiceTest {
 
         verify(cultivationInfoRepository, times(1))
                 .upsertCultivationInfo(any(CultivationInfoDto.class));
+    }
+
+    @Test
+    void test_findCultivationInfo_success() {
+        when(cultivationInfoRepository.findCultivationInfo(anyLong())).thenReturn(Optional.ofNullable(dto));
+
+        Optional<CultivationInfoDto> cultivationInfoDtoOptional = cultivationInfoService.findCultivationInfo(dto.getCultivationId());
+
+        Assertions.assertTrue(cultivationInfoDtoOptional.isPresent());
+        verify(cultivationInfoRepository, times(1)).findCultivationInfo(anyLong());
+    }
+
+    @Test
+    void test_findCultivationInfo_fail() {
+        when(cultivationInfoRepository.findCultivationInfo(anyLong())).thenReturn(Optional.empty());
+
+        Optional<CultivationInfoDto> cultivationInfoDtoOptional = cultivationInfoService.findCultivationInfo(dto.getCultivationId());
+
+        Assertions.assertTrue(cultivationInfoDtoOptional.isEmpty());
+        verify(cultivationInfoRepository, times(1)).findCultivationInfo(anyLong());
     }
 
     @Test

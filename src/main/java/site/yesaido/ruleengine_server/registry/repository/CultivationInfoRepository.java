@@ -2,6 +2,8 @@ package site.yesaido.ruleengine_server.registry.repository;
 
 import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
 
+import java.util.Optional;
+
 /**
  * 재배 환경 정보의 CRUD를 담당하는 Repository 인터페이스입니다.<br>
  * Redis 외 다른 Repository를 고려하여 인터페이스로 정의합니다.
@@ -14,11 +16,12 @@ public interface CultivationInfoRepository {
      */
     void upsertCultivationInfo(CultivationInfoDto dto);
 
-    // Read
-    /*
-        추후 조회 기능 필요 시, 그 시점에 메서드 작성
-        void findCultivationInfo();
-    */
+    /**
+     * [Read] 재배 환경 정보를 조회합니다.
+     * @param cultivationId 조회할 재배 환경의 id
+     * @return 조회된 재배 환경 정보 {@link CultivationInfoDto}를 담은 {@link Optional}
+     */
+    Optional<CultivationInfoDto> findCultivationInfo(Long cultivationId);
 
     /**
      * [Delete] 재배 환경 정보를 삭제합니다.

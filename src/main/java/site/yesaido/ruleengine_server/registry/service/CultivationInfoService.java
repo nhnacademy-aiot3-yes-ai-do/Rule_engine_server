@@ -7,6 +7,8 @@ import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDe
 import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
 
+import java.util.Optional;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -20,6 +22,10 @@ public class CultivationInfoService {
         );
 
         log.debug("cultivationInfo 적제: cultivationId={}", cultivationInfoDto.getCultivationId());
+    }
+
+    public Optional<CultivationInfoDto> findCultivationInfo(Long cultivationId) {
+        return cultivationInfoRepository.findCultivationInfo(cultivationId);
     }
 
     public void deleteCultivationInfo(CultivationInfoDeleteDto cultivationInfoDeleteDto) {

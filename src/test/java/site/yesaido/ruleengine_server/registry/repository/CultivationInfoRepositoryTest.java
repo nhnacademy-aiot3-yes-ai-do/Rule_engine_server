@@ -1,5 +1,6 @@
 package site.yesaido.ruleengine_server.registry.repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,8 @@ import org.springframework.data.redis.core.ValueOperations;
 import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.impl.CultivationInfoRedisRepository;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,6 +25,9 @@ class CultivationInfoRepositoryTest {
 
     @Mock
     private ValueOperations<String, Object> valueOperations;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private CultivationInfoRedisRepository repository;
@@ -53,6 +59,31 @@ class CultivationInfoRepositoryTest {
         repository.deleteCultivationInfo(1L);
 
         verify(redisTemplate, times(1)).delete(anyString());
+    }
+
+    @Test
+    void test_findCultivationInfo_success() {
+        Object object = new Object();
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get(anyString())).thenReturn(object);
+        when(objectMapper.convertValue(object, CultivationInfoDto.class)).thenReturn(dto);
+
+        Optional<CultivationInfoDto> result = repository.findCultivationInfo(dto.getCultivationId());
+
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertEquals(dto, result.get());
+        verify(valueOperations, times(1)).get(anyString());
+    }
+
+    @Test
+    void test_findCultivationInfo_fail() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get(anyString())).thenReturn(null);
+
+        Optional<CultivationInfoDto> result = repository.findCultivationInfo(dto.getCultivationId());
+
+        Assertions.assertTrue(result.isEmpty());
+        verify(objectMapper, never()).convertValue(any(), eq(CultivationInfoDto.class));
     }
 
     @Test
