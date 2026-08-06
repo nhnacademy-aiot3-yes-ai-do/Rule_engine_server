@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
+/**
+ * {@link SmartLifecycle}을 구현하여, 컨테이너가 구동될 때 MQTT 브로커 연결 및 토픽 구독을 수행합니다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -26,6 +29,10 @@ public class MqttConnectionManager implements SmartLifecycle {
 
     private volatile boolean running = false;
 
+    /**
+     * Spring 컨테이너가 시작될 때 자동으로 호출되는 메서드입니다.<br>
+     * MQTT 메세지 수신을 위한 콜백을 등록하고, 브로커에 연결한 뒤 설정된 토픽들을 구독합니다.
+     */
     @Override
     public void start() {
         log.debug(">>> MqttConnectionManager.start() 호출됨");
@@ -48,6 +55,10 @@ public class MqttConnectionManager implements SmartLifecycle {
         }
     }
 
+    /**
+     * Spring 컴테이너가 종료될 때 자동으로 호출되는 메서드입니다.<br>
+     * MQTT 브로커와의 연결을 안전하게 해제하여 자원을 반납합니다.
+     */
     @Override
     public void stop() {
         try {

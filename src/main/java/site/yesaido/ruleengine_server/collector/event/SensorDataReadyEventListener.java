@@ -15,5 +15,10 @@ public class SensorDataReadyEventListener {
     @EventListener
     public void handleSensorDataReady(SensorDataReadyEvent event) {
         log.debug("이벤트 수신: {}", event.getSensorDataDto());
+        try {
+            // todo : RuleEngine쪽에서 데이터를 전달받는 부분 작성 완료되면 구현
+        } catch (Exception e) {
+            log.error("RuleEngine 처리 중 예외 발생: sensorDataDto={}", event.getSensorDataDto(), e);
+        }
     }
 }

@@ -2,14 +2,14 @@
 
 Registry에 대한 구현 사항에 대해 서술합니다.
 
-세부 로직 수정 등 최적화와 관련한 사항에 대해서는 추구에 고려합니다.
+(세부 로직 수정 등 최적화와 관련한 사항에 대해서는 추구에 고려합니다.)
 
 ## 0. registry
 
 registry는 크게 consumer/service/repository로 구분되며, 담당하는 기능은 다음과 같습니다.
-- `RabbitMQ Listener`를 통한 재배 환경 정보 및 센서 정보 수신
-- `consumer` → `@Service` → `@Repository` 계층 구조를 통한 데이터 전달
-- 수신한 정보를 `Redis`에 적제
+- **consumer** : `RabbitMQ Listener`를 통한 재배 환경 정보 및 센서 정보 수신
+- **service** : `consumer` → `@Service` → `@Repository` 계층 구조를 통한 데이터 전달
+- **repository** : 수신한 정보를 `Redis`에 적제
 
 ---
 
