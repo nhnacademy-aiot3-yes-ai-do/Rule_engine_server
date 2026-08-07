@@ -1,4 +1,4 @@
-package site.yesaido.ruleengine_server.registry.dto.cultivation;
+package site.yesaido.ruleengine_server.global.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

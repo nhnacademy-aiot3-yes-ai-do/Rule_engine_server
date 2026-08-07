@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;
 
 import java.util.Optional;
@@ -21,11 +21,11 @@ public class SensorDataValidator {
     private static final double TEMPERATURE_MIN = -20.0;
     private static final double TEMPERATURE_MAX = 60.0;
     private static final double HUMIDITY_MIN = 0.0;
-    private static final double HUMIDITY_MAX = 100.0;
+    private static final double HUMIDITY_MAX = 200.0;
     private static final double CO2_MIN = 0.0;
     private static final double CO2_MAX = 10000.0;
     private static final double LIGHT_MIN = 0.0;
-    private static final double LIGHT_MAX = 100.0;
+    private static final double LIGHT_MAX = 1000.0;
 
     private final SensorInfoService sensorInfoService;
 

@@ -8,8 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteDto;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
+import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 
@@ -77,7 +77,7 @@ class SensorInfoServiceTest {
     void test_deleteSensorInfo() {
         when(sensorInfoRepository.exists(anyString(), any(SensorType.class))).thenReturn(true);
 
-        SensorInfoDeleteDto deleteDto = new SensorInfoDeleteDto();
+        SensorInfoDeleteEvent deleteDto = new SensorInfoDeleteEvent();
         deleteDto.setCultivationId(1L);
         deleteDto.setDeviceEui("device_eui");
         deleteDto.setSensorType(SensorType.TEMPERATURE);

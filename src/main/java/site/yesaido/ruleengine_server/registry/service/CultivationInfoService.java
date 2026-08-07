@@ -3,8 +3,8 @@ package site.yesaido.ruleengine_server.registry.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDeleteDto;
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoDeleteEvent;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
 
 import java.util.Optional;
@@ -16,21 +16,21 @@ public class CultivationInfoService {
 
     private final CultivationInfoRepository cultivationInfoRepository;
 
-    public void upsertCultivationInfo(CultivationInfoDto cultivationInfoDto) {
+    public void upsertCultivationInfo(ThresholdInfoEvent thresholdInfoEvent) {
         cultivationInfoRepository.upsertCultivationInfo(
-                cultivationInfoDto
+                thresholdInfoEvent
         );
 
-        log.debug("cultivationInfo 적제: cultivationId={}", cultivationInfoDto.getCultivationId());
+        log.debug("cultivationInfo 적제: cultivationId={}", thresholdInfoEvent.getCultivationId());
     }
 
-    public Optional<CultivationInfoDto> findCultivationInfo(Long cultivationId) {
+    public Optional<ThresholdInfoEvent> findCultivationInfo(Long cultivationId) {
         return cultivationInfoRepository.findCultivationInfo(cultivationId);
     }
 
-    public void deleteCultivationInfo(CultivationInfoDeleteDto cultivationInfoDeleteDto) {
+    public void deleteCultivationInfo(ThresholdInfoDeleteEvent thresholdInfoDeleteEvent) {
 
-        long cultivationId = cultivationInfoDeleteDto.getCultivationId();
+        long cultivationId = thresholdInfoDeleteEvent.getCultivationId();
 
         if (!cultivationInfoRepository.exists(cultivationId)) {
             log.warn("삭제하려는 재배 환경(cultivationId={})이 존재하지 않음 (이미 삭제되었거나 동기화 전)", cultivationId);

@@ -6,8 +6,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteDto;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
+import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +40,7 @@ class SensorInfoConsumerTest {
 
     @Test
     void test_consumeSensorInfoDelete() {
-        SensorInfoDeleteDto deleteDto = new SensorInfoDeleteDto();
+        SensorInfoDeleteEvent deleteDto = new SensorInfoDeleteEvent();
         deleteDto.setCultivationId(1L);
         deleteDto.setSensorType(SensorType.TEMPERATURE);
 

@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.impl.CultivationInfoRedisRepository;
 
 import java.util.Optional;
@@ -32,11 +32,11 @@ class CultivationInfoRepositoryTest {
     @InjectMocks
     private CultivationInfoRedisRepository repository;
 
-    private CultivationInfoDto dto;
+    private ThresholdInfoEvent dto;
 
     @BeforeEach
     void setUp() {
-        dto = new CultivationInfoDto(
+        dto = new ThresholdInfoEvent(
                 1L,
                 20.0, 30.0,
                 60.0, 80.0,
@@ -51,7 +51,7 @@ class CultivationInfoRepositoryTest {
 
         repository.upsertCultivationInfo(dto);
 
-        verify(valueOperations, times(1)).set(anyString(), any(CultivationInfoDto.class));
+        verify(valueOperations, times(1)).set(anyString(), any(ThresholdInfoEvent.class));
     }
 
     @Test
@@ -66,9 +66,9 @@ class CultivationInfoRepositoryTest {
         Object object = new Object();
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(object);
-        when(objectMapper.convertValue(object, CultivationInfoDto.class)).thenReturn(dto);
+        when(objectMapper.convertValue(object, ThresholdInfoEvent.class)).thenReturn(dto);
 
-        Optional<CultivationInfoDto> result = repository.findCultivationInfo(dto.getCultivationId());
+        Optional<ThresholdInfoEvent> result = repository.findCultivationInfo(dto.getCultivationId());
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(dto, result.get());
@@ -80,10 +80,10 @@ class CultivationInfoRepositoryTest {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(null);
 
-        Optional<CultivationInfoDto> result = repository.findCultivationInfo(dto.getCultivationId());
+        Optional<ThresholdInfoEvent> result = repository.findCultivationInfo(dto.getCultivationId());
 
         Assertions.assertTrue(result.isEmpty());
-        verify(objectMapper, never()).convertValue(any(), eq(CultivationInfoDto.class));
+        verify(objectMapper, never()).convertValue(any(), eq(ThresholdInfoEvent.class));
     }
 
     @Test

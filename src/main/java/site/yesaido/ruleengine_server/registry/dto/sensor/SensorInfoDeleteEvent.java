@@ -1,4 +1,4 @@
-package site.yesaido.ruleengine_server.registry.dto.cultivation;
+package site.yesaido.ruleengine_server.registry.dto.sensor;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -6,13 +6,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 재배 환경 삭제를 위한 DTO입니다.
+ * 센서 정보 삭제을 위한 DTO입니다.
  */
 @Getter
 @Setter
 @NoArgsConstructor
-public class CultivationInfoDeleteDto {
+public class SensorInfoDeleteEvent {
 
     @NotNull
     private Long cultivationId;
+
+    @NotNull
+    private String deviceEui;
 }

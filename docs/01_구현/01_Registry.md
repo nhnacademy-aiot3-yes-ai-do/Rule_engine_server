@@ -60,13 +60,13 @@ public class CultivationInfoConsumer {
     private final CultivationInfoService cultivationInfoService;
 
     @RabbitHandler
-    public void consumeCultivationInfoUpsert(@Payload @Valid CultivationInfoDto cultivationInfoDto) {
-        cultivationInfoService.upsertCultivationInfo(cultivationInfoDto);
+    public void consumeCultivationInfoUpsert(@Payload @Valid CultivationInfoDto thresholdInfoEvent) {
+        cultivationInfoService.upsertCultivationInfo(thresholdInfoEvent);
     }
 
     @RabbitHandler
-    public void consumeCultivationInfoDelete(@Payload @Valid CultivationInfoDeleteDto cultivationInfoDeleteDto) {
-        cultivationInfoService.deleteCultivationInfo(cultivationInfoDeleteDto);
+    public void consumeCultivationInfoDelete(@Payload @Valid CultivationInfoDeleteDto thresholdInfoDeleteEvent) {
+        cultivationInfoService.deleteCultivationInfo(thresholdInfoDeleteEvent);
     }
 }
 ```

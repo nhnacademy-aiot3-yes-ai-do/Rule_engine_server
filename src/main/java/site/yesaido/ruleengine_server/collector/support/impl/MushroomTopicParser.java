@@ -12,6 +12,7 @@ import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 import site.yesaido.ruleengine_server.global.exception.InvalidTopicFormatException;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -74,7 +75,9 @@ public class MushroomTopicParser implements SensorDataParser {
 
     private record MushroomPayload(
 
-            Double value,
+            BigDecimal value,
+
+            String unit,
 
             OffsetDateTime time,
 

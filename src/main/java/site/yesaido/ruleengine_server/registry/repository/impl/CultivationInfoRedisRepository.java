@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
 
 import java.util.Optional;
@@ -23,7 +23,7 @@ public class CultivationInfoRedisRepository implements CultivationInfoRepository
     private final ObjectMapper objectMapper;
 
     @Override
-    public void upsertCultivationInfo(CultivationInfoDto dto) {
+    public void upsertCultivationInfo(ThresholdInfoEvent dto) {
         redisTemplate.opsForValue().set(
                 buildKey(dto.getCultivationId()),
                 dto
@@ -31,7 +31,7 @@ public class CultivationInfoRedisRepository implements CultivationInfoRepository
     }
 
     @Override
-    public Optional<CultivationInfoDto> findCultivationInfo(Long cultivationId) {
+    public Optional<ThresholdInfoEvent> findCultivationInfo(Long cultivationId) {
         Object rawValue = redisTemplate.opsForValue().get(buildKey(cultivationId));
 
         if (rawValue == null) {
@@ -39,7 +39,7 @@ public class CultivationInfoRedisRepository implements CultivationInfoRepository
         }
 
         return Optional.ofNullable(
-                objectMapper.convertValue(rawValue, CultivationInfoDto.class)
+                objectMapper.convertValue(rawValue, ThresholdInfoEvent.class)
         );
     }
 

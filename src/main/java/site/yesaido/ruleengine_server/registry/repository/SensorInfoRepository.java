@@ -1,7 +1,7 @@
 package site.yesaido.ruleengine_server.registry.repository;
 
 import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 
 import java.util.Optional;
 

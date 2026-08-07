@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteDto;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
+import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 
@@ -41,11 +41,11 @@ public class SensorInfoService {
         return sensorInfoRepository.findSensorInfo(deviceEui, sensorType);
     }
 
-    public void deleteSensorInfo(SensorInfoDeleteDto sensorInfoDeleteDto) {
+    public void deleteSensorInfo(SensorInfoDeleteEvent sensorInfoDeleteEvent) {
 
-        long cultivationId = sensorInfoDeleteDto.getCultivationId();
-        String deviceEui = sensorInfoDeleteDto.getDeviceEui();
-        SensorType sensorType = sensorInfoDeleteDto.getSensorType();
+        long cultivationId = sensorInfoDeleteEvent.getCultivationId();
+        String deviceEui = sensorInfoDeleteEvent.getDeviceEui();
+        SensorType sensorType = sensorInfoDeleteEvent.getSensorType();
 
         if (!sensorInfoRepository.exists(deviceEui, sensorType)) {
             log.warn("삭제하려는 센서(cultivationId={}, deviceEui={}, sensorType={})가 존재하지 않음", cultivationId, deviceEui, sensorType.name());

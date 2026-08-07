@@ -1,6 +1,6 @@
 package site.yesaido.ruleengine_server.registry.repository;
 
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 
 import java.util.Optional;
 
@@ -14,14 +14,14 @@ public interface CultivationInfoRepository {
      * [Create & Update] 재배 환경 정보를 삽입 또는 갱신합니다.
      * @param dto 삽입 또는 갱신할 재배 환경에 대한 정보를 담은 dto
      */
-    void upsertCultivationInfo(CultivationInfoDto dto);
+    void upsertCultivationInfo(ThresholdInfoEvent dto);
 
     /**
      * [Read] 재배 환경 정보를 조회합니다.
      * @param cultivationId 조회할 재배 환경의 id
-     * @return 조회된 재배 환경 정보 {@link CultivationInfoDto}를 담은 {@link Optional}
+     * @return 조회된 재배 환경 정보 {@link ThresholdInfoEvent}를 담은 {@link Optional}
      */
-    Optional<CultivationInfoDto> findCultivationInfo(Long cultivationId);
+    Optional<ThresholdInfoEvent> findCultivationInfo(Long cultivationId);
 
     /**
      * [Delete] 재배 환경 정보를 삭제합니다.

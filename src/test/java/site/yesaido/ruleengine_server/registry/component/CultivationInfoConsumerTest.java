@@ -5,8 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDeleteDto;
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoDeleteEvent;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.service.CultivationInfoService;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +24,7 @@ class CultivationInfoConsumerTest {
 
     @Test
     void test_consumeCultivationInfoUpsert() {
-        CultivationInfoDto dto = new CultivationInfoDto(
+        ThresholdInfoEvent dto = new ThresholdInfoEvent(
                 1L,
                 20.0, 30.0,
                 60.0, 80.0,
@@ -35,18 +35,18 @@ class CultivationInfoConsumerTest {
         cultivationInfoConsumer.consumeCultivationInfoUpsert(dto);
 
         verify(cultivationInfoService, times(1))
-                .upsertCultivationInfo(any(CultivationInfoDto.class));
+                .upsertCultivationInfo(any(ThresholdInfoEvent.class));
     }
 
     @Test
     void test_consumeCultivationInfoDelete() {
-        CultivationInfoDeleteDto deleteDto = new CultivationInfoDeleteDto();
+        ThresholdInfoDeleteEvent deleteDto = new ThresholdInfoDeleteEvent();
         deleteDto.setCultivationId(1L);
 
         cultivationInfoConsumer.consumeCultivationInfoDelete(deleteDto);
 
         verify(cultivationInfoService, times(1))
-                .deleteCultivationInfo(any(CultivationInfoDeleteDto.class));
+                .deleteCultivationInfo(any(ThresholdInfoDeleteEvent.class));
     }
 
 }
