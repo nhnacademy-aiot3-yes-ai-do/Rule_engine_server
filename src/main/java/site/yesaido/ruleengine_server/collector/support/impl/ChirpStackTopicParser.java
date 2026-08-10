@@ -88,7 +88,12 @@ public class ChirpStackTopicParser implements SensorDataParser {
                     deviceModel, deviceName, deviceEui,
                     sensorType,
                     entry.getValue().asDouble(), time,
-                    ""
+                    switch (sensorType) {
+                        case TEMPERATURE -> "°C";
+                        case HUMIDITY -> "%";
+                        case CO2 -> "ppm";
+                        case LIGHT -> "lx";
+                    }
             ));
         });
 

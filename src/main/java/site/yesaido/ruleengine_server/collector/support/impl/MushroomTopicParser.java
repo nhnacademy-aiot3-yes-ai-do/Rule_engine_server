@@ -57,8 +57,8 @@ public class MushroomTopicParser implements SensorDataParser {
         SensorType sensorType = SensorType.from(parts[5]);
 
         MushroomPayload parsed = parsePayload(payload);
-        if (parsed.value == null || parsed.time == null) {
-            throw new InvalidPayloadFormatException(SupportedTopic.MUSHROOM, "페이로드 구성이 올바르지 않습니다. (필수 요소: value, time)", payload);
+        if (parsed.value == null || parsed.time == null || parsed.unit == null) {
+            throw new InvalidPayloadFormatException(SupportedTopic.MUSHROOM, "페이로드 구성이 올바르지 않습니다. (필수 요소: value, time, unit)", payload);
         }
         SensorDataDto sensorDataDto = new SensorDataDto(
                 place, location,

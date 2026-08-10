@@ -15,7 +15,7 @@ public class RabbitTopologyConfig {
     @Value("${custom-rabbitmq.exchange.from-cultivation}")
     private String exchangeFromCultivation;
 
-    @Value("${custom-rabbitmq.queue.cultivation-info}")
+    @Value("${custom-rabbitmq.queue.threshold-info}")
     private String thresholdInfoQueueName;
 
     @Value("${custom-rabbitmq.queue.sensor-info}")
