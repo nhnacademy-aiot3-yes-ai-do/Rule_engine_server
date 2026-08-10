@@ -43,7 +43,7 @@ public class SensorDataValidator {
         SensorType sensorType = sensorDataDto.getSensorType();
         Double value = sensorDataDto.getValue();
 
-        Optional<SensorInfoDto> optionalSensorInfoDto = sensorInfoService.findSensorInfo(deviceEui, sensorType);
+        Optional<SensorInfoDto> optionalSensorInfoDto = sensorInfoService.findSensorInfo(deviceEui, sensorType, );
 
         if (optionalSensorInfoDto.isEmpty()) {
             log.warn("미등록 센서 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType.name());

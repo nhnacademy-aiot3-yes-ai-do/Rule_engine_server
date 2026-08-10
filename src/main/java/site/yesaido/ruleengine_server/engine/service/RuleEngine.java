@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.service.CollectorService;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
-import site.yesaido.ruleengine_server.registry.service.CultivationInfoService;
+import site.yesaido.ruleengine_server.registry.service.ThresholdInfoService;
 
 import java.util.Optional;
 
@@ -19,11 +19,11 @@ import java.util.Optional;
 @Service
 public class RuleEngine {
 
-    private final CultivationInfoService cultivationInfoService;
+    private final ThresholdInfoService thresholdInfoService;
 
     public void start(SensorDataDto dto) {
          Optional<ThresholdInfoEvent> cultivationInfoDtoOptional =
-                 cultivationInfoService.findCultivationInfo(dto.getCultivationId());
+                 thresholdInfoService.findCultivationInfo(dto.getCultivationId());
 
          if (cultivationInfoDtoOptional.isEmpty()) {
              log.warn("임계값 정보 없음 - 판단 보류: cultivationId={}", dto.getCultivationId());

@@ -46,22 +46,22 @@ class SensorInfoRepositoryTest {
     }
 
     @Test
-    void test_upsertSensorInfo() {
+    void test_upsert() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-        repository.upsertSensorInfo(dto);
+        repository.upsert(dto);
 
         verify(valueOperations, times(1)).set(anyString(), any(SensorInfoDto.class));
     }
 
     @Test
-    void test_findSensorInfo_success() {
+    void test_findByDeviceEuiAndSensorType_success() {
         Object object = new Object();
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(object);
         when(objectMapper.convertValue(object, SensorInfoDto.class)).thenReturn(dto);
 
-        Optional<SensorInfoDto> result = repository.findSensorInfo(dto.getDeviceEui(), dto.getSensorType());
+        Optional<SensorInfoDto> result = repository.findByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), );
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(dto, result.get());
@@ -69,36 +69,36 @@ class SensorInfoRepositoryTest {
     }
 
     @Test
-    void test_findSensorInfo_fail() {
+    void test_findByDeviceEuiAndSensorType_fail() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(null);
 
-        Optional<SensorInfoDto> result = repository.findSensorInfo(dto.getDeviceEui(), dto.getSensorType());
+        Optional<SensorInfoDto> result = repository.findByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), );
 
         Assertions.assertTrue(result.isEmpty());
         verify(objectMapper, never()).convertValue(any(), eq(SensorInfoDto.class));
     }
 
     @Test
-    void test_deleteSensorInfo() {
-        repository.deleteSensorInfo(dto.getDeviceEui(), dto.getSensorType());
+    void test_deleteByDeviceEuiAndSensorType() {
+        repository.deleteByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), );
 
         verify(redisTemplate, times(1)).delete(anyString());
     }
 
     @Test
-    void test_exists_returnTrue() {
+    void test_exists_ByDeviceEuiAndSensorType_returnTrue() {
         when(redisTemplate.hasKey(anyString())).thenReturn(true);
 
-        Assertions.assertTrue(repository.exists(dto.getDeviceEui(), dto.getSensorType()));
+        Assertions.assertTrue(repository.existsByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), ));
         verify(redisTemplate, times(1)).hasKey(anyString());
     }
 
     @Test
-    void test_exists_returnFalse() {
+    void test_exists_ByDeviceEuiAndSensorType_returnFalse() {
         when(redisTemplate.hasKey(anyString())).thenReturn(false);
 
-        Assertions.assertFalse(repository.exists(dto.getDeviceEui(), dto.getSensorType()));
+        Assertions.assertFalse(repository.existsByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), ));
         verify(redisTemplate, times(1)).hasKey(anyString());
     }
 }

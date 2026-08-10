@@ -24,7 +24,7 @@ class SensorInfoConsumerTest {
     private SensorInfoConsumer sensorInfoConsumer;
 
     @Test
-    void test_consumeSensorInfoUpsert() {
+    void test_consumeSensorInfoUpsertEvent() {
         SensorInfoDto dto = new SensorInfoDto(
                 1L,
                 "장소", "위치",
@@ -32,19 +32,19 @@ class SensorInfoConsumerTest {
                 SensorType.TEMPERATURE
         );
 
-        sensorInfoConsumer.consumeSensorInfoUpsert(dto);
+        sensorInfoConsumer.consumeSensorInfoUpsertEvent(dto);
 
         verify(sensorInfoService, times(1))
                 .upsertSensorInfo(any(SensorInfoDto.class));
     }
 
     @Test
-    void test_consumeSensorInfoDelete() {
+    void test_consumeSensorInfoDeleteEvent() {
         SensorInfoDeleteEvent deleteDto = new SensorInfoDeleteEvent();
         deleteDto.setCultivationId(1L);
         deleteDto.setSensorType(SensorType.TEMPERATURE);
 
-        sensorInfoConsumer.consumeSensorInfoDelete(deleteDto);
+        sensorInfoConsumer.consumeSensorInfoDeleteEvent(deleteDto);
 
         verify(sensorInfoService, times(1))
                 .deleteSensorInfo(deleteDto);

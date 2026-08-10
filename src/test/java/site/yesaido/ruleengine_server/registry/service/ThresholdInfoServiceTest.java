@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoDeleteEvent;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
-import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
+import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 
 import java.util.Optional;
 
@@ -17,13 +17,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CultivationInfoServiceTest {
+class ThresholdInfoServiceTest {
 
     @Mock
-    private CultivationInfoRepository cultivationInfoRepository;
+    private ThresholdInfoRepository thresholdInfoRepository;
 
     @InjectMocks
-    private CultivationInfoService cultivationInfoService;
+    private ThresholdInfoService thresholdInfoService;
 
     private ThresholdInfoEvent dto;
 
@@ -40,42 +40,42 @@ class CultivationInfoServiceTest {
 
     @Test
     void test_upsertCultivationInfo() {
-        cultivationInfoService.upsertCultivationInfo(dto);
+        thresholdInfoService.upsertCultivationInfo(dto);
 
-        verify(cultivationInfoRepository, times(1))
-                .upsertCultivationInfo(any(ThresholdInfoEvent.class));
+        verify(thresholdInfoRepository, times(1))
+                .upsert(any(ThresholdInfoEvent.class));
     }
 
     @Test
     void test_findCultivationInfo_success() {
-        when(cultivationInfoRepository.findCultivationInfo(anyLong())).thenReturn(Optional.ofNullable(dto));
+        when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.ofNullable(dto));
 
-        Optional<ThresholdInfoEvent> cultivationInfoDtoOptional = cultivationInfoService.findCultivationInfo(dto.getCultivationId());
+        Optional<ThresholdInfoEvent> cultivationInfoDtoOptional = thresholdInfoService.findCultivationInfo(dto.getCultivationId());
 
         Assertions.assertTrue(cultivationInfoDtoOptional.isPresent());
-        verify(cultivationInfoRepository, times(1)).findCultivationInfo(anyLong());
+        verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
     }
 
     @Test
     void test_findCultivationInfo_fail() {
-        when(cultivationInfoRepository.findCultivationInfo(anyLong())).thenReturn(Optional.empty());
+        when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.empty());
 
-        Optional<ThresholdInfoEvent> cultivationInfoDtoOptional = cultivationInfoService.findCultivationInfo(dto.getCultivationId());
+        Optional<ThresholdInfoEvent> cultivationInfoDtoOptional = thresholdInfoService.findCultivationInfo(dto.getCultivationId());
 
         Assertions.assertTrue(cultivationInfoDtoOptional.isEmpty());
-        verify(cultivationInfoRepository, times(1)).findCultivationInfo(anyLong());
+        verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
     }
 
     @Test
     void test_deleteCultivationInfo() {
 
-        when(cultivationInfoRepository.exists(anyLong())).thenReturn(true);
+        when(thresholdInfoRepository.existsByCultivationId(anyLong())).thenReturn(true);
 
         ThresholdInfoDeleteEvent deleteDto = new ThresholdInfoDeleteEvent();
         deleteDto.setCultivationId(1L);
-        cultivationInfoService.deleteCultivationInfo(deleteDto);
+        thresholdInfoService.deleteCultivationInfo(deleteDto);
 
-        verify(cultivationInfoRepository, times(1)).exists(anyLong());
-        verify(cultivationInfoRepository, times(1)).deleteCultivationInfo(anyLong());
+        verify(thresholdInfoRepository, times(1)).existsByCultivationId(anyLong());
+        verify(thresholdInfoRepository, times(1)).deleteByCultivationId(anyLong());
     }
 }

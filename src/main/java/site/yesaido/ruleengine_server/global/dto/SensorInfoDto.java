@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoEvent;
 
 /**
  * 센서 정보를 담고 있는 DTO입니다.
@@ -39,4 +40,19 @@ public class SensorInfoDto {
 
     @NotNull
     private String unit;
+
+    public static SensorInfoDto from(SensorInfoEvent event) {
+        SensorInfoDto dto = new SensorInfoDto();
+
+        dto.cultivationId = event.getCultivationId();
+        dto.location = event.getLocation();
+        dto.locationDetail = event.getLocationDetail();
+        dto.deviceModel = event.getDeviceModel();
+        dto.deviceName = event.getDeviceName();
+        dto.deviceEui = event.getDeviceEui();
+        dto.sensorType = event.getSensorType();
+        dto.unit = event.getUnit();
+
+        return dto;
+    }
 }

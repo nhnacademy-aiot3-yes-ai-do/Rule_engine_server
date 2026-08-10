@@ -28,9 +28,11 @@ mqtt:
 
 custom-rabbitmq:
     queue:
-        # todo : 작명 규칙 논의에 따른 큐 이름 변경
-        cultivation-info: "mushmush.cultivation-info.queue"
-        sensor-info: "mushmush.sensor-info.queue"
+        threshold-info: "yes-nhn.rule-engine.threshold-info.queue"
+        sensor-info: "yes-nhn.rule-engine.sensor-info.queue"
+    exchange:
+        from-cultivation: "yes-nhn.sensor.exchange"
+#        to-notification : "yes-nhn.notification.exchange"
 
 logging:
     level:

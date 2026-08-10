@@ -4,26 +4,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
-import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
+import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
+import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 
 import java.util.Optional;
 
 /**
- * CultivationInfoRepository의 Redis 기반 구현체입니다.<br>
- * Collector validation 및 RuleEngine 판단 시 필요한 재배 환경 정보를 Redis에 저장 및 조회합니다.
+ * ThresholdInfoRepository의 Redis 기반 구현체입니다.<br>
+ * Collector validation 및 RuleEngine 판단 시 필요한 재배 환경 정보(= 임계값)를 Redis에 저장 및 조회합니다.
  */
 @RequiredArgsConstructor
 @Repository
-public class CultivationInfoRedisRepository implements CultivationInfoRepository {
+public class ThresholdInfoRedisRepository implements ThresholdInfoRepository {
 
-    private static final String KEY_TEMPLATE = "cultivation:%d";
+    private static final String KEY_TEMPLATE = "threshold:%d";
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final ObjectMapper objectMapper;
 
     @Override
-    public void upsertCultivationInfo(ThresholdInfoEvent dto) {
+    public void upsert(ThresholdInfoDto dto) {
         redisTemplate.opsForValue().set(
                 buildKey(dto.getCultivationId()),
                 dto
@@ -31,7 +31,7 @@ public class CultivationInfoRedisRepository implements CultivationInfoRepository
     }
 
     @Override
-    public Optional<ThresholdInfoEvent> findCultivationInfo(Long cultivationId) {
+    public Optional<ThresholdInfoDto> findByCultivationId(Long cultivationId) {
         Object rawValue = redisTemplate.opsForValue().get(buildKey(cultivationId));
 
         if (rawValue == null) {
@@ -39,19 +39,19 @@ public class CultivationInfoRedisRepository implements CultivationInfoRepository
         }
 
         return Optional.ofNullable(
-                objectMapper.convertValue(rawValue, ThresholdInfoEvent.class)
+                objectMapper.convertValue(rawValue, ThresholdInfoDto.class)
         );
     }
 
     @Override
-    public void deleteCultivationInfo(Long cultivationId) {
+    public void deleteByCultivationId(Long cultivationId) {
         redisTemplate.delete(
                 buildKey(cultivationId)
         );
     }
 
     @Override
-    public boolean exists(Long cultivationId) {
+    public boolean existsByCultivationId(Long cultivationId) {
         return Boolean.TRUE.equals(
                 redisTemplate.hasKey(buildKey(cultivationId))
         );

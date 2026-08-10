@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
-import site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepository;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoEvent;
+import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 
 import java.util.Optional;
@@ -16,12 +17,16 @@ import java.util.Optional;
 @Service
 public class SensorInfoService {
 
-    private final CultivationInfoRepository cultivationInfoRepository;
+    private final ThresholdInfoRepository thresholdInfoRepository;
     private final SensorInfoRepository sensorInfoRepository;
 
-    public void upsertSensorInfo(SensorInfoDto sensorInfoDto) {
+    public void upsertSensorInfo(SensorInfoEvent sensorInfoEvent) {
 
-        if (!cultivationInfoRepository.exists(sensorInfoDto.getCultivationId())) {
+        SensorInfoDto sensorInfoDto = SensorInfoDto.from(sensorInfoEvent);
+
+        if (!thresholdInfoRepository.existsByCultivationId(sensorInfoDto.getCultivationId())) {
+            /* 재배 환경(= 임계값) 정보와 센서 정보를 전달해주는 쪽에서는 [재배 환경 추가] -> [센서 추가] 순서로 요청을 보냅니다.
+               혹시 모를 지연이 생겨 재배 환경 정보보다 센서 정보가 먼저 도착할 경우를 고려하여 로그만 남기며, 센서 추가 요청을 막지는 않습니다. */
             log.warn("센서(deviceModel={}, deviceEui={}, sensorType={})가 추가될 재배 환경((cultivationId={})이 존재하지 않음",
                     sensorInfoDto.getDeviceModel(),
                     sensorInfoDto.getDeviceEui(),
@@ -30,15 +35,13 @@ public class SensorInfoService {
             );
         }
 
-        sensorInfoRepository.upsertSensorInfo(
-                sensorInfoDto
-        );
+        sensorInfoRepository.upsert(sensorInfoDto);
 
         log.debug("sensorInfo 적제: cultivationId={}, sensorType={}", sensorInfoDto.getCultivationId(), sensorInfoDto.getSensorType().name());
     }
 
-    public Optional<SensorInfoDto> findSensorInfo(String deviceEui, SensorType sensorType) {
-        return sensorInfoRepository.findSensorInfo(deviceEui, sensorType);
+    public Optional<SensorInfoDto> findSensorInfo(String deviceEui, SensorType sensorType, String unit) {
+        return sensorInfoRepository.findByDeviceEuiAndSensorType(deviceEui, sensorType, unit);
     }
 
     public void deleteSensorInfo(SensorInfoDeleteEvent sensorInfoDeleteEvent) {
@@ -46,16 +49,18 @@ public class SensorInfoService {
         long cultivationId = sensorInfoDeleteEvent.getCultivationId();
         String deviceEui = sensorInfoDeleteEvent.getDeviceEui();
         SensorType sensorType = sensorInfoDeleteEvent.getSensorType();
+        String unit = sensorInfoDeleteEvent.getUnit();
 
-        if (!sensorInfoRepository.exists(deviceEui, sensorType)) {
-            log.warn("삭제하려는 센서(cultivationId={}, deviceEui={}, sensorType={})가 존재하지 않음", cultivationId, deviceEui, sensorType.name());
+        if (!sensorInfoRepository.existsByDeviceEuiAndSensorType(deviceEui, sensorType, unit)) {
+            log.warn("삭제하려는 센서(cultivationId={}, deviceEui={}, sensorType={}, unit={})가 존재하지 않음", cultivationId, deviceEui, sensorType.name(), unit);
         }
 
-        sensorInfoRepository.deleteSensorInfo(
+        sensorInfoRepository.deleteByDeviceEuiAndSensorType(
                 deviceEui,
-                sensorType
+                sensorType,
+                unit
         );
 
-        log.debug("sensorInfo 삭제: cultivationId={}, deviceEui={}, sensorType={}", cultivationId, deviceEui, sensorType.name());
+        log.debug("sensorInfo 삭제: cultivationId={}, deviceEui={}, sensorType={}, unit={}", cultivationId, deviceEui, sensorType.name(), unit);
     }
 }

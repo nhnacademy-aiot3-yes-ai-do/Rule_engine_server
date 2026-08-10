@@ -3217,26 +3217,26 @@ Caused by: com.rabbitmq.client.ShutdownSignalException: channel error; protocol 
 	at com.rabbitmq.client.impl.AMQConnection$MainLoop.run(AMQConnection.java:695)
 	... 1 more
 
-[INFO] Running site.yesaido.ruleengine_server.registry.component.CultivationInfoConsumerTest
+[INFO] Running site.yesaido.ruleengine_server.registry.component.ThresholdInfoConsumerTest
 Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
 OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
 WARNING: A Java agent has been loaded dynamically (/home/runner/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.8/byte-buddy-agent-1.17.8.jar)
 WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
 WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
 WARNING: Dynamic loading of agents will be disallowed by default in a future release
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.506 s -- in site.yesaido.ruleengine_server.registry.component.CultivationInfoConsumerTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.506 s -- in site.yesaido.ruleengine_server.registry.component.ThresholdInfoConsumerTest
 [INFO] Running site.yesaido.ruleengine_server.registry.component.SensorInfoConsumerTest
 [INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s -- in site.yesaido.ruleengine_server.registry.component.SensorInfoConsumerTest
-[INFO] Running site.yesaido.ruleengine_server.registry.service.CultivationInfoServiceTest
+[INFO] Running site.yesaido.ruleengine_server.registry.service.ThresholdInfoServiceTest
 2026-07-29T09:08:07.254Z  INFO 3441 --- [ruleEngine_server] [           main] s.y.r.r.service.CultivationInfoService   : cultivationInfo 적제: cultivationId=1
 2026-07-29T09:08:07.280Z  INFO 3441 --- [ruleEngine_server] [           main] s.y.r.r.service.CultivationInfoService   : cultivationInfo 삭제: cultivationId=1
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.287 s -- in site.yesaido.ruleengine_server.registry.service.CultivationInfoServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.287 s -- in site.yesaido.ruleengine_server.registry.service.ThresholdInfoServiceTest
 [INFO] Running site.yesaido.ruleengine_server.registry.service.SensorInfoServiceTest
 2026-07-29T09:08:07.359Z  INFO 3441 --- [ruleEngine_server] [           main] s.y.r.r.service.SensorInfoService        : sensorInfo 삭제: cultivationId=1, deviceEui=device_eui, sensorType=TEMPERATURE
 2026-07-29T09:08:07.366Z  INFO 3441 --- [ruleEngine_server] [           main] s.y.r.r.service.SensorInfoService        : sensorInfo 적제: cultivationId=1, sensorType=TEMPERATURE
 [INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.073 s -- in site.yesaido.ruleengine_server.registry.service.SensorInfoServiceTest
-[INFO] Running site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepositoryTest
-[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.620 s -- in site.yesaido.ruleengine_server.registry.repository.CultivationInfoRepositoryTest
+[INFO] Running site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepositoryTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.620 s -- in site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepositoryTest
 [INFO] Running site.yesaido.ruleengine_server.registry.repository.SensorInfoRepositoryTest
 [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.030 s -- in site.yesaido.ruleengine_server.registry.repository.SensorInfoRepositoryTest
 [INFO]

@@ -11,14 +11,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
-import site.yesaido.ruleengine_server.registry.repository.impl.CultivationInfoRedisRepository;
+import site.yesaido.ruleengine_server.registry.repository.impl.ThresholdInfoRedisRepository;
 
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CultivationInfoRepositoryTest {
+class ThresholdInfoRepositoryTest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -30,7 +30,7 @@ class CultivationInfoRepositoryTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private CultivationInfoRedisRepository repository;
+    private ThresholdInfoRedisRepository repository;
 
     private ThresholdInfoEvent dto;
 
@@ -46,29 +46,29 @@ class CultivationInfoRepositoryTest {
     }
 
     @Test
-    void test_upsertCultivationInfo() {
+    void test_upsert() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-        repository.upsertCultivationInfo(dto);
+        repository.upsert(dto);
 
         verify(valueOperations, times(1)).set(anyString(), any(ThresholdInfoEvent.class));
     }
 
     @Test
-    void test_deleteCultivationInfo() {
-        repository.deleteCultivationInfo(1L);
+    void test_deleteByCultivationId() {
+        repository.deleteByCultivationId(1L);
 
         verify(redisTemplate, times(1)).delete(anyString());
     }
 
     @Test
-    void test_findCultivationInfo_success() {
+    void test_findByCultivationId_success() {
         Object object = new Object();
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(object);
         when(objectMapper.convertValue(object, ThresholdInfoEvent.class)).thenReturn(dto);
 
-        Optional<ThresholdInfoEvent> result = repository.findCultivationInfo(dto.getCultivationId());
+        Optional<ThresholdInfoEvent> result = repository.findByCultivationId(dto.getCultivationId());
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(dto, result.get());
@@ -76,29 +76,29 @@ class CultivationInfoRepositoryTest {
     }
 
     @Test
-    void test_findCultivationInfo_fail() {
+    void test_findByCultivationId_fail() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(null);
 
-        Optional<ThresholdInfoEvent> result = repository.findCultivationInfo(dto.getCultivationId());
+        Optional<ThresholdInfoEvent> result = repository.findByCultivationId(dto.getCultivationId());
 
         Assertions.assertTrue(result.isEmpty());
         verify(objectMapper, never()).convertValue(any(), eq(ThresholdInfoEvent.class));
     }
 
     @Test
-    void test_exists_returnTrue() {
+    void test_exists_ByCultivationId_returnTrue() {
         when(redisTemplate.hasKey(anyString())).thenReturn(true);
 
-        Assertions.assertTrue(repository.exists(1L));
+        Assertions.assertTrue(repository.existsByCultivationId(1L));
         verify(redisTemplate, times(1)).hasKey(anyString());
     }
 
     @Test
-    void test_exists_returnFalse() {
+    void test_exists_ByCultivationId_returnFalse() {
         when(redisTemplate.hasKey(anyString())).thenReturn(false);
 
-        Assertions.assertFalse(repository.exists(1L));
+        Assertions.assertFalse(repository.existsByCultivationId(1L));
         verify(redisTemplate, times(1)).hasKey(anyString());
     }
 
