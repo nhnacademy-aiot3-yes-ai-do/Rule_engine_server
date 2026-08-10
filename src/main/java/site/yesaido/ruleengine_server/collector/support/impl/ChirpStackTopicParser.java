@@ -87,7 +87,8 @@ public class ChirpStackTopicParser implements SensorDataParser {
                     place, location,
                     deviceModel, deviceName, deviceEui,
                     sensorType,
-                    entry.getValue().asDouble(), time
+                    entry.getValue().asDouble(), time,
+                    ""
             ));
         });
 

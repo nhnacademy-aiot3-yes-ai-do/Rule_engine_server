@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
 import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 
@@ -30,15 +31,16 @@ class SensorInfoServiceTest {
     @InjectMocks
     private SensorInfoService sensorInfoService;
 
-    private SensorInfoDto dto;
+    private SensorInfoUpsertEvent event;
 
     @BeforeEach
     void setup() {
-        dto = new SensorInfoDto(
+        event = new SensorInfoUpsertEvent(
                 1L,
                 "장소", "위치",
                 "device_model", "device_name", "device_eui",
-                SensorType.TEMPERATURE
+                SensorType.TEMPERATURE,
+                "°C"
         );
     }
 
@@ -46,7 +48,7 @@ class SensorInfoServiceTest {
     void test_upsertSensorInfo() {
         when(thresholdInfoRepository.existsByCultivationId(anyLong())).thenReturn(true);
 
-        sensorInfoService.upsertSensorInfo(dto);
+        sensorInfoService.upsertSensorInfo(event);
 
         verify(thresholdInfoRepository, times(1)).existsByCultivationId(anyLong());
         verify(sensorInfoRepository, times(1)).upsert(any(SensorInfoDto.class));
@@ -54,36 +56,42 @@ class SensorInfoServiceTest {
 
     @Test
     void test_findSensorInfo_success() {
-        when(sensorInfoRepository.findByDeviceEuiAndSensorType(anyString(), any(SensorType.class), ))
-                .thenReturn(Optional.ofNullable(dto));
 
-        Optional<SensorInfoDto> sensorInfoDtoOptional = sensorInfoService.findSensorInfo(dto.getDeviceEui(), dto.getSensorType(), );
+        SensorInfoDto dto = SensorInfoDto.from(event);
+        when(sensorInfoRepository.findByDeviceEuiAndSensorType(anyString(), any(SensorType.class), anyString()))
+                .thenReturn(Optional.of(dto));
+
+        Optional<SensorInfoDto> sensorInfoDtoOptional = sensorInfoService.findSensorInfo(event.getDeviceEui(), event.getSensorType(), event.getUnit());
 
         Assertions.assertTrue(sensorInfoDtoOptional.isPresent());
-        verify(sensorInfoRepository, times(1)).findByDeviceEuiAndSensorType(anyString(), any(SensorType.class), );
+        Assertions.assertEquals(dto, sensorInfoDtoOptional.get());
+        verify(sensorInfoRepository, times(1)).findByDeviceEuiAndSensorType(anyString(), any(SensorType.class), anyString());
     }
 
     @Test
     void test_findSensorInfo_fail() {
-        when(sensorInfoRepository.findByDeviceEuiAndSensorType(anyString(), any(SensorType.class), )).thenReturn(Optional.empty());
+        when(sensorInfoRepository.findByDeviceEuiAndSensorType(anyString(), any(SensorType.class), anyString()))
+                .thenReturn(Optional.empty());
 
-        Optional<SensorInfoDto> sensorInfoDtoOptional = sensorInfoService.findSensorInfo(dto.getDeviceEui(), dto.getSensorType(), );
+        Optional<SensorInfoDto> sensorInfoDtoOptional = sensorInfoService.findSensorInfo(event.getDeviceEui(), event.getSensorType(), event.getUnit());
 
         Assertions.assertTrue(sensorInfoDtoOptional.isEmpty());
-        verify(sensorInfoRepository, times(1)).findByDeviceEuiAndSensorType(anyString(), any(SensorType.class), );
+        verify(sensorInfoRepository, times(1)).findByDeviceEuiAndSensorType(anyString(), any(SensorType.class), anyString());
     }
 
     @Test
     void test_deleteSensorInfo() {
-        when(sensorInfoRepository.existsByDeviceEuiAndSensorType(anyString(), any(SensorType.class), )).thenReturn(true);
+        when(sensorInfoRepository.existsByDeviceEuiAndSensorType(anyString(), any(SensorType.class), anyString()))
+                .thenReturn(true);
 
         SensorInfoDeleteEvent deleteDto = new SensorInfoDeleteEvent();
         deleteDto.setCultivationId(1L);
         deleteDto.setDeviceEui("device_eui");
         deleteDto.setSensorType(SensorType.TEMPERATURE);
+        deleteDto.setUnit("°C");
         sensorInfoService.deleteSensorInfo(deleteDto);
 
-        verify(sensorInfoRepository, times(1)).existsByDeviceEuiAndSensorType(anyString(), any(SensorType.class), );
-        verify(sensorInfoRepository, times(1)).deleteByDeviceEuiAndSensorType(anyString(), any(SensorType.class), );
+        verify(sensorInfoRepository, times(1)).existsByDeviceEuiAndSensorType(anyString(), any(SensorType.class), anyString());
+        verify(sensorInfoRepository, times(1)).deleteByDeviceEuiAndSensorType(anyString(), any(SensorType.class), anyString());
     }
 }

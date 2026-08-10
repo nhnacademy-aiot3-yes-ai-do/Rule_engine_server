@@ -37,42 +37,42 @@ class SensorDataValidatorTest {
                 "장소", "위치",
                 "device_model", "device_name", "device_eui",
                 SensorType.TEMPERATURE,
-                20.0, LocalDateTime.now()
+                20.0, LocalDateTime.now(), ""
         );
 
         sensorInfoDto = new SensorInfoDto(
                 1L,
                 "장소", "위치",
                 "device_model", "device_name", "device_eui",
-                SensorType.TEMPERATURE
+                SensorType.TEMPERATURE, ""
         );
     }
 
     @Test
     void test_isValid_returnTrue() {
-        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), ))
+        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), ""))
                 .thenReturn(Optional.ofNullable(sensorInfoDto));
 
         boolean result = validator.isValid(sensorDataDto);
 
         Assertions.assertTrue(result);
         Assertions.assertEquals(sensorDataDto.getCultivationId(), sensorInfoDto.getCultivationId());
-        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), );
+        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), "");
     }
 
     @Test
     void test_isValid_returnFalse_unregisteredSensor() {
-        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), )).thenReturn(Optional.empty());
+        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), "")).thenReturn(Optional.empty());
 
         boolean result = validator.isValid(sensorDataDto);
 
         Assertions.assertFalse(result);
-        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), );
+        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), "");
     }
 
     @Test
     void test_isValid_returnFalse_outOfPhysicalRange() {
-        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), ))
+        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), ""))
                 .thenReturn(Optional.ofNullable(sensorInfoDto));
 
         // 온도 유효 범위: -20.0 ~ 60.0
@@ -95,18 +95,18 @@ class SensorDataValidatorTest {
         Assertions.assertFalse(humidityResult);
         Assertions.assertFalse(co2Result);
         Assertions.assertFalse(lightResult);
-        verify(sensorInfoService, times(4)).findSensorInfo(anyString(), any(SensorType.class), );
+        verify(sensorInfoService, times(4)).findSensorInfo(anyString(), any(SensorType.class), "");
     }
 
     @Test
     void test_isValid_returnFalse_nullValue() {
-        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), ))
+        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), ""))
                 .thenReturn(Optional.ofNullable(sensorInfoDto));
 
         sensorDataDto.setValue(null);
         boolean result = validator.isValid(sensorDataDto);
 
         Assertions.assertFalse(result);
-        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), );
+        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), "");
     }
 }

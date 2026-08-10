@@ -15,7 +15,7 @@ import site.yesaido.ruleengine_server.global.dto.SensorType;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SensorInfoEvent {
+public class SensorInfoUpsertEvent {
 
     @NotNull
     private Long cultivationId;

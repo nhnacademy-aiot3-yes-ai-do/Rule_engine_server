@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoEvent;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
 
 /**
  * 센서 정보를 담고 있는 DTO입니다.
@@ -41,7 +41,7 @@ public class SensorInfoDto {
     @NotNull
     private String unit;
 
-    public static SensorInfoDto from(SensorInfoEvent event) {
+    public static SensorInfoDto from(SensorInfoUpsertEvent event) {
         SensorInfoDto dto = new SensorInfoDto();
 
         dto.cultivationId = event.getCultivationId();

@@ -3,8 +3,8 @@ package site.yesaido.ruleengine_server.registry.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
+import site.yesaido.ruleengine_server.global.exception.ThresholdInfoNotFoundException;
 import site.yesaido.ruleengine_server.registry.dto.threshold.SensorRange;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
@@ -34,7 +34,7 @@ public class ThresholdInfoService {
 
         if (sensorRangeList.size() == 1) {
             ThresholdInfoDto toUpdate = thresholdInfoRepository.findByCultivationId(cultivationId)
-                    .orElseThrow(() -> new RuntimeException(""));
+                    .orElseThrow(() -> new ThresholdInfoNotFoundException(cultivationId));
 
             toUpdate.applyRange(sensorRangeList.getFirst());
             thresholdInfoRepository.upsert(toUpdate);

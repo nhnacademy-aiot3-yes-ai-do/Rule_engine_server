@@ -64,8 +64,9 @@ public class MushroomTopicParser implements SensorDataParser {
                 place, location,
                 deviceModel, parsed.deviceName, deviceEui,
                 sensorType,
-                parsed.value,
-                parsed.time.toLocalDateTime()
+                parsed.value.doubleValue(),
+                parsed.time.toLocalDateTime(),
+                parsed.unit
         );
 
         return List.of(sensorDataDto);
@@ -77,9 +78,9 @@ public class MushroomTopicParser implements SensorDataParser {
 
             BigDecimal value,
 
-            String unit,
-
             OffsetDateTime time,
+
+            String unit,
 
             @JsonProperty("device_name")
             String deviceName,

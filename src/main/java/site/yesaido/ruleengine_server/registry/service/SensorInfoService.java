@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoEvent;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
 import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 
@@ -20,9 +20,9 @@ public class SensorInfoService {
     private final ThresholdInfoRepository thresholdInfoRepository;
     private final SensorInfoRepository sensorInfoRepository;
 
-    public void upsertSensorInfo(SensorInfoEvent sensorInfoEvent) {
+    public void upsertSensorInfo(SensorInfoUpsertEvent sensorInfoUpsertEvent) {
 
-        SensorInfoDto sensorInfoDto = SensorInfoDto.from(sensorInfoEvent);
+        SensorInfoDto sensorInfoDto = SensorInfoDto.from(sensorInfoUpsertEvent);
 
         if (!thresholdInfoRepository.existsByCultivationId(sensorInfoDto.getCultivationId())) {
             /* 재배 환경(= 임계값) 정보와 센서 정보를 전달해주는 쪽에서는 [재배 환경 추가] -> [센서 추가] 순서로 요청을 보냅니다.

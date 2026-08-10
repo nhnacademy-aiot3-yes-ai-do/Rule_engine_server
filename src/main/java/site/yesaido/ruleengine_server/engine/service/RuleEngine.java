@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.service.CollectorService;
+import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.service.ThresholdInfoService;
 
@@ -22,7 +23,7 @@ public class RuleEngine {
     private final ThresholdInfoService thresholdInfoService;
 
     public void start(SensorDataDto dto) {
-         Optional<ThresholdInfoEvent> cultivationInfoDtoOptional =
+         Optional<ThresholdInfoDto> cultivationInfoDtoOptional =
                  thresholdInfoService.findCultivationInfo(dto.getCultivationId());
 
          if (cultivationInfoDtoOptional.isEmpty()) {

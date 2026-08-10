@@ -5,14 +5,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
-import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SensorInfoConsumerTest {
@@ -25,28 +23,23 @@ class SensorInfoConsumerTest {
 
     @Test
     void test_consumeSensorInfoUpsertEvent() {
-        SensorInfoDto dto = new SensorInfoDto(
-                1L,
-                "장소", "위치",
-                "device_model", "device_name", "device_eui",
-                SensorType.TEMPERATURE
-        );
 
-        sensorInfoConsumer.consumeSensorInfoUpsertEvent(dto);
+        SensorInfoUpsertEvent event = mock(SensorInfoUpsertEvent.class);
+
+        sensorInfoConsumer.consumeSensorInfoUpsertEvent(event);
 
         verify(sensorInfoService, times(1))
-                .upsertSensorInfo(any(SensorInfoDto.class));
+                .upsertSensorInfo(any(SensorInfoUpsertEvent.class));
     }
 
     @Test
     void test_consumeSensorInfoDeleteEvent() {
-        SensorInfoDeleteEvent deleteDto = new SensorInfoDeleteEvent();
-        deleteDto.setCultivationId(1L);
-        deleteDto.setSensorType(SensorType.TEMPERATURE);
 
-        sensorInfoConsumer.consumeSensorInfoDeleteEvent(deleteDto);
+        SensorInfoDeleteEvent deleteEvent = mock(SensorInfoDeleteEvent.class);
+
+        sensorInfoConsumer.consumeSensorInfoDeleteEvent(deleteEvent);
 
         verify(sensorInfoService, times(1))
-                .deleteSensorInfo(deleteDto);
+                .deleteSensorInfo(any(SensorInfoDeleteEvent.class));
     }
 }
