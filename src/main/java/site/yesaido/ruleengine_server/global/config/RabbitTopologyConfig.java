@@ -28,12 +28,16 @@ public class RabbitTopologyConfig {
 
     @Bean
     public Queue thresholdInfoQueue() {
-        return QueueBuilder.durable(thresholdInfoQueueName).build();
+        return QueueBuilder.durable(thresholdInfoQueueName)
+                .withArgument("x-dead-letter-exchange", "yes-nhn.dlx")
+                .build();
     }
 
     @Bean
     public Queue sensorInfoQueue() {
-        return QueueBuilder.durable(sensorInfoQueueName).build();
+        return QueueBuilder.durable(sensorInfoQueueName)
+                .withArgument("x-dead-letter-exchange", "yes-nhn.dlx")
+                .build();
     }
 
     @Bean
