@@ -1,5 +1,6 @@
 package site.yesaido.ruleengine_server.registry.dto.sensor;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import site.yesaido.ruleengine_server.global.dto.SensorType;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SensorInfoDeleteDto {
+public class SensorInfoDeleteEvent {
 
     @NotNull
     private Long cultivationId;
@@ -22,4 +23,7 @@ public class SensorInfoDeleteDto {
 
     @NotNull
     private SensorType sensorType;
+
+    @NotBlank
+    private String unit;
 }

@@ -5,10 +5,9 @@ import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDeleteDto;
-import site.yesaido.ruleengine_server.registry.dto.cultivation.CultivationInfoDto;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteDto;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 
 
 import java.util.HashMap;
@@ -33,10 +32,9 @@ public class RabbitMqConfig {
         DefaultClassMapper classMapper = new DefaultClassMapper();
 
         Map<String, Class<?>> idClassMapping = new HashMap<>();
-        idClassMapping.put("cultivation.upsert", CultivationInfoDto.class);
-        idClassMapping.put("cultivation.delete", CultivationInfoDeleteDto.class);
-        idClassMapping.put("sensor.upsert", SensorInfoDto.class);
-        idClassMapping.put("sensor.delete", SensorInfoDeleteDto.class);
+        idClassMapping.put("threshold.crud", ThresholdInfoEvent.class);
+        idClassMapping.put("sensor.upsert", SensorInfoUpsertEvent.class);
+        idClassMapping.put("sensor.delete", SensorInfoDeleteEvent.class);
         classMapper.setIdClassMapping(idClassMapping);
 
         return classMapper;

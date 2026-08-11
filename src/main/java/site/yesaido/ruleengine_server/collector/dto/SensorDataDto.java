@@ -32,12 +32,14 @@ public class SensorDataDto {
 
     private LocalDateTime time;
 
+    private String unit;
+
     private Long cultivationId;
 
     public SensorDataDto(String place, String location,
                          String deviceModel, String deviceName, String deviceEui,
                          SensorType sensorType,
-                         Double value, LocalDateTime time) {
-        this(place, location, deviceModel, deviceName, deviceEui, sensorType, value, time, null);
+                         Double value, LocalDateTime time, String unit) {
+        this(place, location, deviceModel, deviceName, deviceEui, sensorType, value, time, unit, null);
     }
 }

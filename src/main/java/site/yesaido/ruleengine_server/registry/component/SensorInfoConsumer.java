@@ -6,8 +6,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteDto;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;
 
 @RequiredArgsConstructor
@@ -18,14 +18,14 @@ public class SensorInfoConsumer {
     private final SensorInfoService sensorInfoService;
 
     @RabbitHandler
-    public void consumeSensorInfoUpsert(@Payload @Valid SensorInfoDto sensorInfoDto) {
+    public void consumeSensorInfoUpsertEvent(@Payload @Valid SensorInfoUpsertEvent sensorInfoUpsertEvent) {
 
-        sensorInfoService.upsertSensorInfo(sensorInfoDto);
+        sensorInfoService.upsertSensorInfo(sensorInfoUpsertEvent);
     }
 
     @RabbitHandler
-    public void consumeSensorInfoDelete(@Payload @Valid SensorInfoDeleteDto sensorInfoDeleteDto) {
+    public void consumeSensorInfoDeleteEvent(@Payload @Valid SensorInfoDeleteEvent sensorInfoDeleteEvent) {
 
-        sensorInfoService.deleteSensorInfo(sensorInfoDeleteDto);
+        sensorInfoService.deleteSensorInfo(sensorInfoDeleteEvent);
     }
 }

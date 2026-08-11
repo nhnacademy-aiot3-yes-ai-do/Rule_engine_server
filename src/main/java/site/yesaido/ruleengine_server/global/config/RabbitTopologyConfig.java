@@ -12,40 +12,45 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitTopologyConfig {
 
-    private static final String MUSH_EXCHANGE = "mushmush-exchange";
+    @Value("${custom-rabbitmq.exchange.from-cultivation}")
+    private String exchangeFromCultivation;
 
-    @Value("${custom-rabbitmq.queue.cultivation-info}")
-    private String cultivationInfoQueueName;
+    @Value("${custom-rabbitmq.queue.threshold-info}")
+    private String thresholdInfoQueueName;
 
     @Value("${custom-rabbitmq.queue.sensor-info}")
     private String sensorInfoQueueName;
 
     @Bean
-    public TopicExchange mushmushExchange() {
-        return new TopicExchange(MUSH_EXCHANGE, true, false);
+    public TopicExchange sensorExchange() {
+        return new TopicExchange(exchangeFromCultivation, true, false);
     }
 
     @Bean
-    public Queue cultivationInfoQueue() {
-        return QueueBuilder.durable(cultivationInfoQueueName).build();
+    public Queue thresholdInfoQueue() {
+        return QueueBuilder.durable(thresholdInfoQueueName)
+                .withArgument("x-dead-letter-exchange", "yes-nhn.dlx")
+                .build();
     }
 
     @Bean
     public Queue sensorInfoQueue() {
-        return QueueBuilder.durable(sensorInfoQueueName).build();
+        return QueueBuilder.durable(sensorInfoQueueName)
+                .withArgument("x-dead-letter-exchange", "yes-nhn.dlx")
+                .build();
     }
 
     @Bean
-    public Binding cultivationInfoBinding(Queue cultivationInfoQueue, TopicExchange mushmushExchange) {
-        return BindingBuilder.bind(cultivationInfoQueue)
-                .to(mushmushExchange)
-                .with("cultivation.*");
+    public Binding cultivationInfoBinding(Queue thresholdInfoQueue, TopicExchange sensorExchange) {
+        return BindingBuilder.bind(thresholdInfoQueue)
+                .to(sensorExchange)
+                .with("threshold.*");
     }
 
     @Bean
-    public Binding sensorInfoBinding(Queue sensorInfoQueue, TopicExchange mushmushExchange) {
+    public Binding sensorInfoBinding(Queue sensorInfoQueue, TopicExchange sensorExchange) {
         return BindingBuilder.bind(sensorInfoQueue)
-                .to(mushmushExchange)
+                .to(sensorExchange)
                 .with("sensor.*");
     }
 }

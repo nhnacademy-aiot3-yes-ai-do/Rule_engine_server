@@ -10,16 +10,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
-import site.yesaido.ruleengine_server.registry.repository.impl.SensorInfoRedisRepository;
+import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
+import site.yesaido.ruleengine_server.registry.repository.impl.ThresholdInfoRedisRepository;
 
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SensorInfoRepositoryTest {
+class ThresholdInfoRepositoryTest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -31,18 +31,18 @@ class SensorInfoRepositoryTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private SensorInfoRedisRepository repository;
+    private ThresholdInfoRedisRepository repository;
 
-    private SensorInfoDto dto;
+    private ThresholdInfoDto dto;
 
     @BeforeEach
     void setUp() {
-        dto = new SensorInfoDto(
+        dto = new ThresholdInfoDto(
                 1L,
-                "장소", "위치",
-                "device_model", "device_name", "device_eui",
-                SensorType.TEMPERATURE,
-                "°C"
+                20.0, 30.0,
+                60.0, 80.0,
+                600.0, 800.0,
+                0.0, 500.0
         );
     }
 
@@ -52,17 +52,24 @@ class SensorInfoRepositoryTest {
 
         repository.upsert(dto);
 
-        verify(valueOperations, times(1)).set(anyString(), any(SensorInfoDto.class));
+        verify(valueOperations, times(1)).set(anyString(), any(ThresholdInfoDto.class));
     }
 
     @Test
-    void test_findByDeviceEuiAndSensorType_success() {
+    void test_deleteByCultivationId() {
+        repository.deleteByCultivationId(1L);
+
+        verify(redisTemplate, times(1)).delete(anyString());
+    }
+
+    @Test
+    void test_findByCultivationId_success() {
         Object object = new Object();
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(object);
-        when(objectMapper.convertValue(object, SensorInfoDto.class)).thenReturn(dto);
+        when(objectMapper.convertValue(object, ThresholdInfoDto.class)).thenReturn(dto);
 
-        Optional<SensorInfoDto> result = repository.findByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), dto.getUnit());
+        Optional<ThresholdInfoDto> result = repository.findByCultivationId(dto.getCultivationId());
 
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals(dto, result.get());
@@ -70,36 +77,30 @@ class SensorInfoRepositoryTest {
     }
 
     @Test
-    void test_findByDeviceEuiAndSensorType_fail() {
+    void test_findByCultivationId_fail() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(anyString())).thenReturn(null);
 
-        Optional<SensorInfoDto> result = repository.findByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), dto.getUnit());
+        Optional<ThresholdInfoDto> result = repository.findByCultivationId(dto.getCultivationId());
 
         Assertions.assertTrue(result.isEmpty());
-        verify(objectMapper, never()).convertValue(any(), eq(SensorInfoDto.class));
+        verify(objectMapper, never()).convertValue(any(), eq(ThresholdInfoEvent.class));
     }
 
     @Test
-    void test_deleteByDeviceEuiAndSensorType() {
-        repository.deleteByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), dto.getUnit());
-
-        verify(redisTemplate, times(1)).delete(anyString());
-    }
-
-    @Test
-    void test_exists_ByDeviceEuiAndSensorType_returnTrue() {
+    void test_existsByCultivationId_returnTrue() {
         when(redisTemplate.hasKey(anyString())).thenReturn(true);
 
-        Assertions.assertTrue(repository.existsByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), dto.getUnit()));
+        Assertions.assertTrue(repository.existsByCultivationId(1L));
         verify(redisTemplate, times(1)).hasKey(anyString());
     }
 
     @Test
-    void test_exists_ByDeviceEuiAndSensorType_returnFalse() {
+    void test_existsByCultivationId_returnFalse() {
         when(redisTemplate.hasKey(anyString())).thenReturn(false);
 
-        Assertions.assertFalse(repository.existsByDeviceEuiAndSensorType(dto.getDeviceEui(), dto.getSensorType(), dto.getUnit()));
+        Assertions.assertFalse(repository.existsByCultivationId(1L));
         verify(redisTemplate, times(1)).hasKey(anyString());
     }
+
 }

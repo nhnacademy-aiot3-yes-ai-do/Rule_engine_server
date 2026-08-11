@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;
 
 import java.util.Optional;
@@ -21,11 +21,11 @@ public class SensorDataValidator {
     private static final double TEMPERATURE_MIN = -20.0;
     private static final double TEMPERATURE_MAX = 60.0;
     private static final double HUMIDITY_MIN = 0.0;
-    private static final double HUMIDITY_MAX = 100.0;
+    private static final double HUMIDITY_MAX = 200.0;
     private static final double CO2_MIN = 0.0;
     private static final double CO2_MAX = 10000.0;
     private static final double LIGHT_MIN = 0.0;
-    private static final double LIGHT_MAX = 100.0;
+    private static final double LIGHT_MAX = 1000.0;
 
     private final SensorInfoService sensorInfoService;
 
@@ -34,16 +34,17 @@ public class SensorDataValidator {
      * - 등록되어 있는 센서인지 확인합니다.<br>
      * - 물리적으로 유효한 범위인지 확인합니다.<br>
      * - 검증을 통과한 경우 {@code cultivationId}를 채워 넣습니다.
-     * @param sensorDataDto
-     * @return
+     * @param sensorDataDto 검증 대상에 해당하는 센서 데이터
+     * @return {@code true} 검증 대상 센서 데이터가 검증을 통과한 경우
      */
     public boolean isValid(SensorDataDto sensorDataDto) {
 
         String deviceEui = sensorDataDto.getDeviceEui();
         SensorType sensorType = sensorDataDto.getSensorType();
         Double value = sensorDataDto.getValue();
+        String unit = sensorDataDto.getUnit();
 
-        Optional<SensorInfoDto> optionalSensorInfoDto = sensorInfoService.findSensorInfo(deviceEui, sensorType);
+        Optional<SensorInfoDto> optionalSensorInfoDto = sensorInfoService.findSensorInfo(deviceEui, sensorType, unit);
 
         if (optionalSensorInfoDto.isEmpty()) {
             log.warn("미등록 센서 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType.name());

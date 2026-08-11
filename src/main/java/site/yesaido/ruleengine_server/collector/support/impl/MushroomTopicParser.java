@@ -12,6 +12,7 @@ import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 import site.yesaido.ruleengine_server.global.exception.InvalidTopicFormatException;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -56,15 +57,16 @@ public class MushroomTopicParser implements SensorDataParser {
         SensorType sensorType = SensorType.from(parts[5]);
 
         MushroomPayload parsed = parsePayload(payload);
-        if (parsed.value == null || parsed.time == null) {
-            throw new InvalidPayloadFormatException(SupportedTopic.MUSHROOM, "페이로드 구성이 올바르지 않습니다. (필수 요소: value, time)", payload);
+        if (parsed.value == null || parsed.time == null || parsed.unit == null) {
+            throw new InvalidPayloadFormatException(SupportedTopic.MUSHROOM, "페이로드 구성이 올바르지 않습니다. (필수 요소: value, time, unit)", payload);
         }
         SensorDataDto sensorDataDto = new SensorDataDto(
                 place, location,
                 deviceModel, parsed.deviceName, deviceEui,
                 sensorType,
-                parsed.value,
-                parsed.time.toLocalDateTime()
+                parsed.value.doubleValue(),
+                parsed.time.toLocalDateTime(),
+                parsed.unit
         );
 
         return List.of(sensorDataDto);
@@ -74,9 +76,11 @@ public class MushroomTopicParser implements SensorDataParser {
 
     private record MushroomPayload(
 
-            Double value,
+            BigDecimal value,
 
             OffsetDateTime time,
+
+            String unit,
 
             @JsonProperty("device_name")
             String deviceName,

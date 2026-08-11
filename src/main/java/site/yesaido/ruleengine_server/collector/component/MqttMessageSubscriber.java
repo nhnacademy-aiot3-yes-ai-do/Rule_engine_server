@@ -82,7 +82,7 @@ public class MqttMessageSubscriber implements MqttCallback {
     @Override
     public void connectComplete(boolean b, String s) {
         if (b) {
-            log.info("MQTT connectComplete: serverURI={}", s);
+            log.debug("MQTT connectComplete: serverURI={}", s);
         }
     }
 

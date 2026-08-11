@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDto;
+import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 
 import java.util.Optional;
@@ -18,22 +18,22 @@ import java.util.Optional;
 @Repository
 public class SensorInfoRedisRepository implements SensorInfoRepository {
 
-    private static final String KEY_TEMPLATE = "sensor:%s:%s";
+    private static final String KEY_TEMPLATE = "sensor:%s:%s:%s";
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final ObjectMapper objectMapper;
 
     @Override
-    public void upsertSensorInfo(SensorInfoDto dto) {
+    public void upsert(SensorInfoDto dto) {
         redisTemplate.opsForValue().set(
-                buildKey(dto.getDeviceEui(), dto.getSensorType()),
+                buildKey(dto.getDeviceEui(), dto.getSensorType(), dto.getUnit()),
                 dto
         );
     }
 
     @Override
-    public Optional<SensorInfoDto> findSensorInfo(String deviceEui, SensorType sensorType) {
-        Object rawValue = redisTemplate.opsForValue().get(buildKey(deviceEui, sensorType));
+    public Optional<SensorInfoDto> findByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit) {
+        Object rawValue = redisTemplate.opsForValue().get(buildKey(deviceEui, sensorType, unit));
 
         if (rawValue == null) {
             return Optional.empty();
@@ -45,22 +45,22 @@ public class SensorInfoRedisRepository implements SensorInfoRepository {
     }
 
     @Override
-    public void deleteSensorInfo(String deviceEui, SensorType sensorType) {
+    public void deleteByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit) {
         redisTemplate.delete(
-                buildKey(deviceEui, sensorType)
+                buildKey(deviceEui, sensorType, unit)
         );
     }
 
     @Override
-    public boolean exists(String deviceEui, SensorType sensorType) {
+    public boolean existsByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit) {
         return Boolean.TRUE.equals(
-                redisTemplate.hasKey(buildKey(deviceEui, sensorType))
+                redisTemplate.hasKey(buildKey(deviceEui, sensorType, unit))
         );
     }
 
     // ==================================================
 
-    private String buildKey(String deviceEui, SensorType sensorType) {
-        return KEY_TEMPLATE.formatted(deviceEui, sensorType.name());
+    private String buildKey(String deviceEui, SensorType sensorType, String unit) {
+        return KEY_TEMPLATE.formatted(deviceEui, sensorType.name(), unit);
     }
 }
