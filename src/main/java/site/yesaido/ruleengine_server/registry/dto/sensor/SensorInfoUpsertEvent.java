@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 /**
  * 센서 정보를 담고 있는 DTO입니다.
@@ -35,9 +37,24 @@ public class SensorInfoUpsertEvent {
     @NotBlank
     private String deviceEui;
 
-    @NotNull
-    private SensorType sensorType;
+    @NotBlank
+    private String sensorType;
+
+    @NotBlank
+    private String unit;
 
     @NotNull
-    private String unit;
+    OffsetDateTime occurredAt;
+
+    public SensorInfoUpsertEvent(Long cultivationId, String location, String locationDetail, String deviceModel, String deviceName, String deviceEui, String sensorType, String unit) {
+        this.cultivationId = cultivationId;
+        this.location = location;
+        this.locationDetail = locationDetail;
+        this.deviceModel = deviceModel;
+        this.deviceName = deviceName;
+        this.deviceEui = deviceEui;
+        this.sensorType = sensorType;
+        this.unit = unit;
+        this.occurredAt = OffsetDateTime.now(ZoneOffset.UTC).withOffsetSameInstant(ZoneOffset.ofHours(9));
+    }
 }

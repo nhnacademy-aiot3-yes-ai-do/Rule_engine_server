@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
 import site.yesaido.ruleengine_server.global.exception.ThresholdInfoNotFoundException;
 import site.yesaido.ruleengine_server.registry.dto.threshold.SensorRange;
@@ -15,6 +14,7 @@ import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +29,9 @@ class ThresholdInfoServiceTest {
     @Mock
     private ThresholdInfoRepository thresholdInfoRepository;
 
+    @Mock
+    private ManagedSensorTypeService managedSensorTypeService;
+
     @InjectMocks
     private ThresholdInfoService thresholdInfoService;
 
@@ -39,10 +42,10 @@ class ThresholdInfoServiceTest {
     @BeforeEach
     void setUp() {
         sensorRangeList = new ArrayList<>();
-        sensorRangeList.add(new SensorRange(SensorType.TEMPERATURE, "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0)));
-        sensorRangeList.add(new SensorRange(SensorType.HUMIDITY, "%", BigDecimal.valueOf(60.0), BigDecimal.valueOf(80.0)));
-        sensorRangeList.add(new SensorRange(SensorType.CO2, "ppm", BigDecimal.valueOf(600.0), BigDecimal.valueOf(800.0)));
-        sensorRangeList.add(new SensorRange(SensorType.LIGHT, "lx", BigDecimal.valueOf(0.0), BigDecimal.valueOf(500.0)));
+        sensorRangeList.add(new SensorRange("TEMPERATURE", "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0)));
+        sensorRangeList.add(new SensorRange("HUMIDITY", "%", BigDecimal.valueOf(60.0), BigDecimal.valueOf(80.0)));
+        sensorRangeList.add(new SensorRange("CO2", "ppm", BigDecimal.valueOf(600.0), BigDecimal.valueOf(800.0)));
+        sensorRangeList.add(new SensorRange("LIGHT", "lx", BigDecimal.valueOf(0.0), BigDecimal.valueOf(500.0)));
         event = new ThresholdInfoEvent(
                 1L,
                 sensorRangeList
@@ -57,6 +60,7 @@ class ThresholdInfoServiceTest {
         thresholdInfoService.processThresholdInfoEvent(event);
 
         verify(thresholdInfoRepository, times(1)).upsert(any(ThresholdInfoDto.class));
+        verify(managedSensorTypeService, times(1)).registerAll(anyList());
 
         verify(thresholdInfoRepository, never()).findByCultivationId(anyLong());
         verify(thresholdInfoRepository, never()).deleteByCultivationId(anyLong());
@@ -65,8 +69,8 @@ class ThresholdInfoServiceTest {
     @Test
     void test_processThresholdInfoEvent_whenSensorRangeListSizeIsOne() {
 
-        SensorRange rangeToUpdate = new SensorRange(SensorType.TEMPERATURE, "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0));
-        ThresholdInfoEvent updateEvent = new ThresholdInfoEvent(1L, List.of(rangeToUpdate));
+        SensorRange rangeToUpdate = new SensorRange("TEMPERATURE", "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0));
+        ThresholdInfoEvent updateEvent = new ThresholdInfoEvent(1L, List.of(rangeToUpdate), OffsetDateTime.now());
 
         ThresholdInfoDto existingDto = mock(ThresholdInfoDto.class);
         when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.ofNullable(existingDto));
@@ -76,6 +80,7 @@ class ThresholdInfoServiceTest {
         verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
         verify(existingDto, times(1)).applyRange(rangeToUpdate);
         verify(thresholdInfoRepository, times(1)).upsert(any(ThresholdInfoDto.class));
+        verify(managedSensorTypeService, times(1)).registerAll(anyList());
 
         verify(thresholdInfoRepository, never()).deleteByCultivationId(anyLong());
     }
@@ -83,7 +88,7 @@ class ThresholdInfoServiceTest {
     @Test
     void test_processThresholdInfoEvent_whenSensorRangeListSizeIsOne_fail() {
 
-        SensorRange rangeToUpdate = new SensorRange(SensorType.TEMPERATURE, "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0));
+        SensorRange rangeToUpdate = new SensorRange("TEMPERATURE", "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0));
         ThresholdInfoEvent updateEvent = new ThresholdInfoEvent(1L, List.of(rangeToUpdate));
 
         when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.empty());
@@ -93,6 +98,7 @@ class ThresholdInfoServiceTest {
         verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
         verify(thresholdInfoRepository, never()).upsert(any(ThresholdInfoDto.class));
         verify(thresholdInfoRepository, never()).deleteByCultivationId(anyLong());
+        verify(managedSensorTypeService, never()).registerAll(anyList());
     }
 
     @Test
@@ -105,6 +111,7 @@ class ThresholdInfoServiceTest {
         verify(thresholdInfoRepository, times(1)).deleteByCultivationId(anyLong());
         verify(thresholdInfoRepository, never()).upsert(any(ThresholdInfoDto.class));
         verify(thresholdInfoRepository, never()).findByCultivationId(anyLong());
+        verify(managedSensorTypeService, never()).registerAll(anyList());
     }
 
     @Test

@@ -1,11 +1,11 @@
 package site.yesaido.ruleengine_server.registry.dto.threshold;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 
 import java.math.BigDecimal;
 
@@ -18,10 +18,10 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class SensorRange {
 
-    @NotNull
-    private SensorType sensorType;
+    @NotBlank
+    private String sensorType;
 
-    @NotNull
+    @NotBlank
     private String unit;
 
     @NotNull

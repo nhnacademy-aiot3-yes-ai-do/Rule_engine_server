@@ -3,7 +3,9 @@ package site.yesaido.ruleengine_server.collector.dto;
 import lombok.*;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * 센서로부터 수집한 데이터를 담고 있는 DTO입니다.<br>
@@ -26,11 +28,11 @@ public class SensorDataDto {
 
     private String deviceEui;
 
-    private SensorType sensorType;
+    private String sensorType;
 
-    private Double value;
+    private BigDecimal value;
 
-    private LocalDateTime time;
+    private OffsetDateTime time;
 
     private String unit;
 
@@ -38,8 +40,8 @@ public class SensorDataDto {
 
     public SensorDataDto(String place, String location,
                          String deviceModel, String deviceName, String deviceEui,
-                         SensorType sensorType,
-                         Double value, LocalDateTime time, String unit) {
+                         String sensorType,
+                         BigDecimal value, OffsetDateTime time, String unit) {
         this(place, location, deviceModel, deviceName, deviceEui, sensorType, value, time, unit, null);
     }
 }

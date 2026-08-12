@@ -1,6 +1,5 @@
 package site.yesaido.ruleengine_server.registry.repository;
 
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 
 import java.util.Optional;
@@ -25,7 +24,7 @@ public interface SensorInfoRepository {
      * @param unit       조회할 센서의 측정 단위
      * @return 조회된 센서 정보 {@link SensorInfoDto}를 담은 {@link  Optional} (존재하지 않은 경우 빈 Optional)
      */
-    Optional<SensorInfoDto> findByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit);
+    Optional<SensorInfoDto> findByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit);
 
     /**
      * [Delete] 센서 정보를 삭제합니다.
@@ -34,7 +33,7 @@ public interface SensorInfoRepository {
      * @param sensorType 삭제할 센서 종류
      * @param unit       삭제할 센서의 측정 단위
      */
-    void deleteByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit);
+    void deleteByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit);
 
     // ==================================================
 
@@ -46,5 +45,5 @@ public interface SensorInfoRepository {
      * @param unit       존재 여부를 확인할 센서의 측정 단위
      * @return {@code true} 센서 정보가 존재할 경우
      */
-    boolean existsByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit);
+    boolean existsByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit);
 }

@@ -11,7 +11,6 @@ import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class ChirpStackTopicParser implements SensorDataParser {
                     payload
             );
         }
-        LocalDateTime time = parseTime(root.path("time").asText(null));
+        OffsetDateTime time = parseTime(root.path("time").asText(null));
         if (time == null) {
             throw new InvalidPayloadFormatException(
                     this.getSupportedTopic(),
@@ -86,8 +85,8 @@ public class ChirpStackTopicParser implements SensorDataParser {
             result.add(new SensorDataDto(
                     place, location,
                     deviceModel, deviceName, deviceEui,
-                    sensorType,
-                    entry.getValue().asDouble(), time,
+                    sensorType.name(),
+                    entry.getValue().decimalValue(), time,
                     switch (sensorType) {
                         case TEMPERATURE -> "°C";
                         case HUMIDITY -> "%";
@@ -112,11 +111,11 @@ public class ChirpStackTopicParser implements SensorDataParser {
         }
     }
 
-    private LocalDateTime parseTime(String isoTime) {
+    private OffsetDateTime parseTime(String isoTime) {
         if (isoTime == null) return null;
 
         try {
-            return OffsetDateTime.parse(isoTime).toLocalDateTime();
+            return OffsetDateTime.parse(isoTime);
         } catch (DateTimeParseException e) {
             throw new InvalidPayloadFormatException(
                     this.getSupportedTopic(),

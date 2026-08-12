@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.impl.SensorInfoRedisRepository;
 
@@ -41,7 +40,7 @@ class SensorInfoRepositoryTest {
                 1L,
                 "장소", "위치",
                 "device_model", "device_name", "device_eui",
-                SensorType.TEMPERATURE,
+                "TEMPERATURE",
                 "°C"
         );
     }

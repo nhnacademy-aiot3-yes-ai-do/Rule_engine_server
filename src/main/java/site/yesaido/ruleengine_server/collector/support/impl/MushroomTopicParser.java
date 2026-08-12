@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 import site.yesaido.ruleengine_server.global.exception.InvalidTopicFormatException;
 
@@ -54,7 +53,7 @@ public class MushroomTopicParser implements SensorDataParser {
         String location = parts[2];
         String deviceModel = parts[3];
         String deviceEui = parts[4];
-        SensorType sensorType = SensorType.from(parts[5]);
+        String sensorType = parts[5];
 
         MushroomPayload parsed = parsePayload(payload);
         if (parsed.value == null || parsed.time == null || parsed.unit == null) {
@@ -64,8 +63,8 @@ public class MushroomTopicParser implements SensorDataParser {
                 place, location,
                 deviceModel, parsed.deviceName, deviceEui,
                 sensorType,
-                parsed.value.doubleValue(),
-                parsed.time.toLocalDateTime(),
+                parsed.value,
+                parsed.time,
                 parsed.unit
         );
 

@@ -5,7 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
+
+import java.time.OffsetDateTime;
 
 /**
  * 센서 정보 삭제을 위한 DTO입니다.
@@ -18,12 +19,15 @@ public class SensorInfoDeleteEvent {
     @NotNull
     private Long cultivationId;
 
-    @NotNull
+    @NotBlank
     private String deviceEui;
 
-    @NotNull
-    private SensorType sensorType;
+    @NotBlank
+    private String sensorType;
 
     @NotBlank
     private String unit;
+
+    @NotNull
+    OffsetDateTime occurredAt;
 }

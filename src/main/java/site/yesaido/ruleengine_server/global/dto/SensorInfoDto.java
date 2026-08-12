@@ -36,7 +36,7 @@ public class SensorInfoDto {
     private String deviceEui;
 
     @NotNull
-    private SensorType sensorType;
+    private String sensorType;
 
     @NotNull
     private String unit;
