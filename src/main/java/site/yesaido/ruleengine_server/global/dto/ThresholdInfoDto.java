@@ -49,7 +49,6 @@ public class ThresholdInfoDto {
     }
 
     @Getter
-    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Range {
