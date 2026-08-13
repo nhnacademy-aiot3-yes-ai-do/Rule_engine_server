@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.service.CollectorService;
+import site.yesaido.ruleengine_server.global.dto.SensorValueEvent;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.service.ThresholdInfoService;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class RuleEngine {
 
     private final ThresholdInfoService thresholdInfoService;
+    private final InfluxService influxService;
 
     public void start(SensorDataDto dto) {
          Optional<ThresholdInfoDto> cultivationInfoDtoOptional =
@@ -37,5 +39,6 @@ public class RuleEngine {
 
     private void publishRealTimeData(SensorDataDto dto) {
         log.debug("[RuleEngine] 발행 테스트: {}", dto);
+        influxService.save(SensorValueEvent.from(dto));
     }
 }
