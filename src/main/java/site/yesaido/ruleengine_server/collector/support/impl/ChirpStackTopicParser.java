@@ -1,9 +1,9 @@
 package site.yesaido.ruleengine_server.collector.support.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
@@ -11,7 +11,6 @@ import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -22,11 +21,15 @@ import java.util.Map;
  * {@link SensorDataParser}의 <strong>ChirpStack</strong> 토픽 전용 구현체입니다.<br>
  * 토픽이 <strong>application</strong>으로 시작하는 메세지에 대한 파싱을 담당합니다.
  */
-@RequiredArgsConstructor
 @Component
 public class ChirpStackTopicParser implements SensorDataParser {
 
     private final ObjectMapper objectMapper;
+
+    public ChirpStackTopicParser(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper.copy()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    }
 
     private static final Map<String, SensorType> OBJECT_KEY_MAPPING = Map.of(
             "temperature", SensorType.TEMPERATURE,
@@ -65,7 +68,7 @@ public class ChirpStackTopicParser implements SensorDataParser {
                     payload
             );
         }
-        LocalDateTime time = parseTime(root.path("time").asText(null));
+        OffsetDateTime time = parseTime(root.path("time").asText(null));
         if (time == null) {
             throw new InvalidPayloadFormatException(
                     this.getSupportedTopic(),
@@ -86,8 +89,8 @@ public class ChirpStackTopicParser implements SensorDataParser {
             result.add(new SensorDataDto(
                     place, location,
                     deviceModel, deviceName, deviceEui,
-                    sensorType,
-                    entry.getValue().asDouble(), time,
+                    sensorType.name(),
+                    entry.getValue().decimalValue(), time,
                     switch (sensorType) {
                         case TEMPERATURE -> "°C";
                         case HUMIDITY -> "%";
@@ -112,11 +115,11 @@ public class ChirpStackTopicParser implements SensorDataParser {
         }
     }
 
-    private LocalDateTime parseTime(String isoTime) {
+    private OffsetDateTime parseTime(String isoTime) {
         if (isoTime == null) return null;
 
         try {
-            return OffsetDateTime.parse(isoTime).toLocalDateTime();
+            return OffsetDateTime.parse(isoTime);
         } catch (DateTimeParseException e) {
             throw new InvalidPayloadFormatException(
                     this.getSupportedTopic(),

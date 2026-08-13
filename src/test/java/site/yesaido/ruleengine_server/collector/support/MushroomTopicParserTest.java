@@ -11,13 +11,14 @@ import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 import site.yesaido.ruleengine_server.global.exception.InvalidTopicFormatException;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 
 class MushroomTopicParserTest {
 
     private MushroomTopicParser parser;
 
-    private final String topic = "mushroom/장소/위치/device_model/device_eui/co2";
+    private final String topic = "mushroom/장소/위치/device_model/device_eui/CO2";
 
     @BeforeEach
     void setup() {
@@ -42,9 +43,9 @@ class MushroomTopicParserTest {
         Assertions.assertEquals("device_model", dto.getDeviceModel());
         Assertions.assertEquals("AM107-067999", dto.getDeviceName());
         Assertions.assertEquals("device_eui", dto.getDeviceEui());
-        Assertions.assertEquals(SensorType.CO2, dto.getSensorType());
-        Assertions.assertEquals(LocalDateTime.parse("2026-07-10T08:26:17.922"), dto.getTime());
-        Assertions.assertEquals(995.9, dto.getValue());
+        Assertions.assertEquals(SensorType.CO2.name(), dto.getSensorType());
+        Assertions.assertEquals(OffsetDateTime.parse("2026-07-10T08:26:17.922+00:00"), dto.getTime());
+        Assertions.assertEquals(BigDecimal.valueOf(995.9), dto.getValue());
     }
 
     @Test

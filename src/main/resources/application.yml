@@ -22,6 +22,7 @@ eureka:
         enabled: false
 
 mqtt:
+    enabled: true
     broker-url: ${MQTT_BROKER_URL}
     client-id: ${MQTT_CLIENT_ID}
     subscribe-topics: "mushroom/#, application/#"

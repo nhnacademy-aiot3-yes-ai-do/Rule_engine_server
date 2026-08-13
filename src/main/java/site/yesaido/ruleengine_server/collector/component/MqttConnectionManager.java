@@ -27,7 +27,18 @@ public class MqttConnectionManager implements SmartLifecycle {
     @Value("${mqtt.subscribe-topics}")
     private String[] topics;
 
+    @Value("${mqtt.enabled}")
+    private boolean mqttEnabled;
+
     private volatile boolean running = false;
+
+    @Override
+    public boolean isAutoStartup() {
+        if (!mqttEnabled) {
+            log.info("mqtt.enabled=false — MQTT 연결/구독을 건너뜁니다.");
+        }
+        return mqttEnabled;
+    }
 
     /**
      * Spring 컨테이너가 시작될 때 자동으로 호출되는 메서드입니다.<br>

@@ -6,8 +6,10 @@ import org.springframework.stereotype.Component;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.service.ManagedSensorTypeService;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 /**
@@ -18,16 +20,8 @@ import java.util.Optional;
 @Component
 public class SensorDataValidator {
 
-    private static final double TEMPERATURE_MIN = -20.0;
-    private static final double TEMPERATURE_MAX = 60.0;
-    private static final double HUMIDITY_MIN = 0.0;
-    private static final double HUMIDITY_MAX = 200.0;
-    private static final double CO2_MIN = 0.0;
-    private static final double CO2_MAX = 10000.0;
-    private static final double LIGHT_MIN = 0.0;
-    private static final double LIGHT_MAX = 1000.0;
-
     private final SensorInfoService sensorInfoService;
+    private final ManagedSensorTypeService managedSensorTypeService;
 
     /**
      * 파싱이 완료된 센서 데이터 {@link SensorDataDto}에 대한 검증을 수행하는 메서드입니다.<br>
@@ -40,19 +34,24 @@ public class SensorDataValidator {
     public boolean isValid(SensorDataDto sensorDataDto) {
 
         String deviceEui = sensorDataDto.getDeviceEui();
-        SensorType sensorType = sensorDataDto.getSensorType();
-        Double value = sensorDataDto.getValue();
+        String sensorType = sensorDataDto.getSensorType();
+        BigDecimal value = sensorDataDto.getValue();
         String unit = sensorDataDto.getUnit();
+
+        if (!managedSensorTypeService.isManaged(sensorType)) {
+            log.warn("미관리 센서 타입 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
+            return false;
+        }
+
+        if (value == null) {
+            log.warn("센서 값이 null인 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
+            return false;
+        }
 
         Optional<SensorInfoDto> optionalSensorInfoDto = sensorInfoService.findSensorInfo(deviceEui, sensorType, unit);
 
         if (optionalSensorInfoDto.isEmpty()) {
-            log.warn("미등록 센서 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType.name());
-            return false;
-        }
-
-        if (!isWithinPhysicalRange(sensorType, value)) {
-            log.warn("물리적으로 유효하지 않은 값 폐기: deviceEui={}, sensorType={}, value={}", deviceEui, sensorType.name(), value);
+//            log.warn("미등록 센서 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
             return false;
         }
 
@@ -61,23 +60,4 @@ public class SensorDataValidator {
         return true;
     }
 
-    /**
-     * 센서가 측정한 값이 물리적으로 유효한 범인지 확인하는 메서드입니다.
-     * @param sensorType 센서 종류
-     * @param value 센서가 측정한 값
-     * @return {@code true} 센서가 측정한 값이 물리적으로 유효한 범위 내에 속한 경우
-     */
-    private boolean isWithinPhysicalRange(SensorType sensorType, Double value) {
-
-        if (value == null) {
-            return false;
-        }
-
-        return switch (sensorType) {
-            case TEMPERATURE -> value >= TEMPERATURE_MIN && value <= TEMPERATURE_MAX;
-            case HUMIDITY -> value >= HUMIDITY_MIN && value <= HUMIDITY_MAX;
-            case CO2 -> value >= CO2_MIN && value <= CO2_MAX;
-            case LIGHT -> value >= LIGHT_MIN && value <= LIGHT_MAX;
-        };
-    }
 }

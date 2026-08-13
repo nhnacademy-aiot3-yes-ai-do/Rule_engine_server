@@ -14,6 +14,9 @@ import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.impl.ThresholdInfoRedisRepository;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -37,12 +40,15 @@ class ThresholdInfoRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        Map<String, ThresholdInfoDto.Range> ranges = new HashMap<>();
+        ranges.put("TEMPERATURE", new ThresholdInfoDto.Range("°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0)));
+        ranges.put("HUMIDITY", new ThresholdInfoDto.Range("%", BigDecimal.valueOf(60.0), BigDecimal.valueOf(80.0)));
+        ranges.put("CO2", new ThresholdInfoDto.Range("ppm", BigDecimal.valueOf(600.0), BigDecimal.valueOf(800.0)));
+        ranges.put("LIGHT", new ThresholdInfoDto.Range("lx", BigDecimal.valueOf(0.0), BigDecimal.valueOf(500.0)));
+
         dto = new ThresholdInfoDto(
                 1L,
-                20.0, 30.0,
-                60.0, 80.0,
-                600.0, 800.0,
-                0.0, 500.0
+                ranges
         );
     }
 

@@ -10,6 +10,7 @@ import site.yesaido.ruleengine_server.collector.support.impl.ChirpStackTopicPars
 import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 class ChirpStackTopicParserTest {
@@ -61,16 +62,16 @@ class ChirpStackTopicParserTest {
         Assertions.assertEquals("24e124785c389010", sampleDto.getDeviceEui());
 
         SensorDataDto tempDto = dtoList.stream()
-                .filter(dto -> dto.getSensorType() == SensorType.TEMPERATURE)
+                .filter(dto -> dto.getSensorType().equals(SensorType.TEMPERATURE.name()))
                 .findFirst()
                 .orElseThrow();
-        Assertions.assertEquals(25.3, tempDto.getValue());
+        Assertions.assertEquals(BigDecimal.valueOf(25.3), tempDto.getValue());
 
         SensorDataDto humidityDto = dtoList.stream()
-                .filter(dto -> dto.getSensorType() == SensorType.HUMIDITY)
+                .filter(dto -> dto.getSensorType().equals(SensorType.HUMIDITY.name()))
                 .findFirst()
                 .orElseThrow();
-        Assertions.assertEquals(54.5, humidityDto.getValue());
+        Assertions.assertEquals(BigDecimal.valueOf(54.5), humidityDto.getValue());
     }
 
     @Test

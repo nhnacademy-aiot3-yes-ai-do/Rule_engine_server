@@ -3,7 +3,6 @@ package site.yesaido.ruleengine_server.registry.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
@@ -30,17 +29,17 @@ public class SensorInfoService {
             log.warn("센서(deviceModel={}, deviceEui={}, sensorType={})가 추가될 재배 환경((cultivationId={})이 존재하지 않음",
                     sensorInfoDto.getDeviceModel(),
                     sensorInfoDto.getDeviceEui(),
-                    sensorInfoDto.getSensorType().name(),
+                    sensorInfoDto.getSensorType(),
                     sensorInfoDto.getCultivationId()
             );
         }
 
         sensorInfoRepository.upsert(sensorInfoDto);
 
-        log.debug("sensorInfo 적제: cultivationId={}, sensorType={}", sensorInfoDto.getCultivationId(), sensorInfoDto.getSensorType().name());
+        log.debug("sensorInfo 적제: cultivationId={}, sensorType={}", sensorInfoDto.getCultivationId(), sensorInfoDto.getSensorType());
     }
 
-    public Optional<SensorInfoDto> findSensorInfo(String deviceEui, SensorType sensorType, String unit) {
+    public Optional<SensorInfoDto> findSensorInfo(String deviceEui, String sensorType, String unit) {
         return sensorInfoRepository.findByDeviceEuiAndSensorType(deviceEui, sensorType, unit);
     }
 
@@ -48,11 +47,11 @@ public class SensorInfoService {
 
         long cultivationId = sensorInfoDeleteEvent.getCultivationId();
         String deviceEui = sensorInfoDeleteEvent.getDeviceEui();
-        SensorType sensorType = sensorInfoDeleteEvent.getSensorType();
+        String sensorType = sensorInfoDeleteEvent.getSensorType();
         String unit = sensorInfoDeleteEvent.getUnit();
 
         if (!sensorInfoRepository.existsByDeviceEuiAndSensorType(deviceEui, sensorType, unit)) {
-            log.warn("삭제하려는 센서(cultivationId={}, deviceEui={}, sensorType={}, unit={})가 존재하지 않음", cultivationId, deviceEui, sensorType.name(), unit);
+            log.warn("삭제하려는 센서(cultivationId={}, deviceEui={}, sensorType={}, unit={})가 존재하지 않음", cultivationId, deviceEui, sensorType, unit);
         }
 
         sensorInfoRepository.deleteByDeviceEuiAndSensorType(
@@ -61,6 +60,6 @@ public class SensorInfoService {
                 unit
         );
 
-        log.debug("sensorInfo 삭제: cultivationId={}, deviceEui={}, sensorType={}, unit={}", cultivationId, deviceEui, sensorType.name(), unit);
+        log.debug("sensorInfo 삭제: cultivationId={}, deviceEui={}, sensorType={}, unit={}", cultivationId, deviceEui, sensorType, unit);
     }
 }

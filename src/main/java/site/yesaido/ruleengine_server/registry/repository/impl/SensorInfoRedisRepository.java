@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 
@@ -32,7 +31,7 @@ public class SensorInfoRedisRepository implements SensorInfoRepository {
     }
 
     @Override
-    public Optional<SensorInfoDto> findByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit) {
+    public Optional<SensorInfoDto> findByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit) {
         Object rawValue = redisTemplate.opsForValue().get(buildKey(deviceEui, sensorType, unit));
 
         if (rawValue == null) {
@@ -45,14 +44,14 @@ public class SensorInfoRedisRepository implements SensorInfoRepository {
     }
 
     @Override
-    public void deleteByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit) {
+    public void deleteByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit) {
         redisTemplate.delete(
                 buildKey(deviceEui, sensorType, unit)
         );
     }
 
     @Override
-    public boolean existsByDeviceEuiAndSensorType(String deviceEui, SensorType sensorType, String unit) {
+    public boolean existsByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit) {
         return Boolean.TRUE.equals(
                 redisTemplate.hasKey(buildKey(deviceEui, sensorType, unit))
         );
@@ -60,7 +59,7 @@ public class SensorInfoRedisRepository implements SensorInfoRepository {
 
     // ==================================================
 
-    private String buildKey(String deviceEui, SensorType sensorType, String unit) {
-        return KEY_TEMPLATE.formatted(deviceEui, sensorType.name(), unit);
+    private String buildKey(String deviceEui, String sensorType, String unit) {
+        return KEY_TEMPLATE.formatted(deviceEui, sensorType, unit);
     }
 }

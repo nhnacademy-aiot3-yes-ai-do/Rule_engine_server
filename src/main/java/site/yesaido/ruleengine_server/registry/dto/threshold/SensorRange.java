@@ -1,11 +1,12 @@
 package site.yesaido.ruleengine_server.registry.dto.threshold;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
+import site.yesaido.ruleengine_server.global.util.SensorTypeUtils;
 
 import java.math.BigDecimal;
 
@@ -15,13 +16,12 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class SensorRange {
 
-    @NotNull
-    private SensorType sensorType;
+    @NotBlank
+    private String sensorType;
 
-    @NotNull
+    @NotBlank
     private String unit;
 
     @NotNull
@@ -29,4 +29,10 @@ public class SensorRange {
     @NotNull
     private BigDecimal maxValue;
 
+    public SensorRange(String sensorType, String unit, BigDecimal minValue, BigDecimal maxValue) {
+        this.sensorType = SensorTypeUtils.normalize(sensorType);
+        this.unit = unit;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    }
 }

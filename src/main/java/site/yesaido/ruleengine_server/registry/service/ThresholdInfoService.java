@@ -18,16 +18,21 @@ import java.util.Optional;
 public class ThresholdInfoService {
 
     private final ThresholdInfoRepository thresholdInfoRepository;
+    private final ManagedSensorTypeService managedSensorTypeService;
 
     public void processThresholdInfoEvent(ThresholdInfoEvent thresholdInfoEvent) {
         Long cultivationId = thresholdInfoEvent.getCultivationId();
         List<SensorRange> sensorRangeList = thresholdInfoEvent.getSensorRangeList();
 
-        if (sensorRangeList.size() == 4) {
+        if (sensorRangeList.size() >= 4) {
+            validateDistinctSensorTypes(sensorRangeList);
+
             ThresholdInfoDto newDto = ThresholdInfoDto.from(cultivationId, sensorRangeList);
 
             thresholdInfoRepository.upsert(newDto);
             log.debug("[ThresholdInfoService] 임계값 정보 신규 등록 : {}", newDto);
+
+            registerSensorTypes(sensorRangeList);
 
             return;
         }
@@ -40,19 +45,46 @@ public class ThresholdInfoService {
             thresholdInfoRepository.upsert(toUpdate);
             log.debug("[ThresholdInfoService] 임계값 정보 수정 : {}", toUpdate);
 
+            registerSensorTypes(sensorRangeList);
+
             return;
         }
 
         if (sensorRangeList.isEmpty()) {
             thresholdInfoRepository.deleteByCultivationId(cultivationId);
+            log.debug("[ThresholdInfoService] 임계값 정보 삭제 : cultivationId={}", cultivationId);
+
             return;
         }
 
-        log.warn("");
+        log.warn("[ThresholdInfoService] 추가/수정/삭제 중 어느 것도 이루어지지 않았습니다. {}", thresholdInfoEvent);
     }
 
     public Optional<ThresholdInfoDto> findCultivationInfo(Long cultivationId) {
         return thresholdInfoRepository.findByCultivationId(cultivationId);
+    }
+
+    // ======================================================================
+
+    private void registerSensorTypes(List<SensorRange> sensorRangeList) {
+        managedSensorTypeService.registerAll(
+                sensorRangeList.stream()
+                        .map(SensorRange::getSensorType)
+                        .toList()
+        );
+    }
+
+    private void validateDistinctSensorTypes(List<SensorRange> sensorRangeList) {
+        long distinctCount = sensorRangeList.stream()
+                .map(sensorRange -> "%s_%s".formatted(sensorRange.getSensorType(), sensorRange.getUnit()))
+                .distinct()
+                .count();
+
+        if (distinctCount != sensorRangeList.size()) {
+            throw new IllegalArgumentException(
+                    "sensorRangeList에 (sensorType, unit) 조합이 중복되어 있습니다: %s".formatted(sensorRangeList)
+            );
+        }
     }
 
 }

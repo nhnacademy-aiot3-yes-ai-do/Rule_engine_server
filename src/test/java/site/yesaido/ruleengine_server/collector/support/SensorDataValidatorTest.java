@@ -1,21 +1,20 @@
 package site.yesaido.ruleengine_server.collector.support;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.service.ManagedSensorTypeService;
 import site.yesaido.ruleengine_server.registry.service.SensorInfoService;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -24,6 +23,9 @@ class SensorDataValidatorTest {
 
     @Mock
     private SensorInfoService sensorInfoService;
+
+    @Mock
+    private ManagedSensorTypeService managedSensorTypeService;
 
     @InjectMocks
     private SensorDataValidator validator;
@@ -36,77 +38,68 @@ class SensorDataValidatorTest {
         sensorDataDto = new SensorDataDto(
                 "장소", "위치",
                 "device_model", "device_name", "device_eui",
-                SensorType.TEMPERATURE,
-                20.0, LocalDateTime.now(), "°C"
+                "TEMPERATURE",
+                BigDecimal.valueOf(20.0), OffsetDateTime.now(ZoneOffset.UTC).withOffsetSameInstant(ZoneOffset.ofHours(9)), "°C"
         );
 
         sensorInfoDto = new SensorInfoDto(
                 1L,
                 "장소", "위치",
                 "device_model", "device_name", "device_eui",
-                SensorType.TEMPERATURE, "°C"
+                "TEMPERATURE", "°C"
         );
     }
 
     @Test
+    @DisplayName("검증 성공")
     void test_isValid_returnTrue() {
-        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), anyString()))
+        when(managedSensorTypeService.isManaged(anyString())).thenReturn(true);
+        when(sensorInfoService.findSensorInfo(anyString(), anyString(), anyString()))
                 .thenReturn(Optional.ofNullable(sensorInfoDto));
 
         boolean result = validator.isValid(sensorDataDto);
 
         Assertions.assertTrue(result);
         Assertions.assertEquals(sensorDataDto.getCultivationId(), sensorInfoDto.getCultivationId());
-        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), anyString());
+        verify(managedSensorTypeService, times(1)).isManaged(anyString());
+        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), anyString(), anyString());
     }
 
     @Test
-    void test_isValid_returnFalse_unregisteredSensor() {
-        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), anyString())).thenReturn(Optional.empty());
+    @DisplayName("검증 실패: 관리되고 있지 않은 센서 타입")
+    void test_isValid_returnFalse_sensorTypeNotManaged() {
+        when(managedSensorTypeService.isManaged(anyString())).thenReturn(false);
 
         boolean result = validator.isValid(sensorDataDto);
 
         Assertions.assertFalse(result);
-        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), anyString());
+        verify(managedSensorTypeService, times(1)).isManaged(anyString());
+        verify(sensorInfoService, never()).findSensorInfo(anyString(), anyString(), anyString());
     }
 
     @Test
-    void test_isValid_returnFalse_outOfPhysicalRange() {
-        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), anyString()))
-                .thenReturn(Optional.ofNullable(sensorInfoDto));
-
-        // 온도 유효 범위: -20.0 ~ 60.0
-        sensorDataDto.setValue(100.0);
-        boolean temperatureResult = validator.isValid(sensorDataDto);
-
-        // 습도 유효 범위: 0.0 ~ 100.0
-        sensorDataDto.setSensorType(SensorType.HUMIDITY);   sensorDataDto.setValue(-10.0);
-        boolean humidityResult = validator.isValid(sensorDataDto);
-
-        // co2 유효 범위: 0.0 ~ 10000.0
-        sensorDataDto.setSensorType(SensorType.CO2);
-        boolean co2Result = validator.isValid(sensorDataDto);
-
-        // 조도 유효 범위: 0.0 ~ 100.0
-        sensorDataDto.setSensorType(SensorType.LIGHT);
-        boolean lightResult = validator.isValid(sensorDataDto);
-
-        Assertions.assertFalse(temperatureResult);
-        Assertions.assertFalse(humidityResult);
-        Assertions.assertFalse(co2Result);
-        Assertions.assertFalse(lightResult);
-        verify(sensorInfoService, times(4)).findSensorInfo(anyString(), any(SensorType.class), anyString());
-    }
-
-    @Test
+    @DisplayName("검증 실패: 센서 값이 null")
     void test_isValid_returnFalse_nullValue() {
-        when(sensorInfoService.findSensorInfo(anyString(), any(SensorType.class), anyString()))
-                .thenReturn(Optional.ofNullable(sensorInfoDto));
+        when(managedSensorTypeService.isManaged(anyString())).thenReturn(true);
 
         sensorDataDto.setValue(null);
         boolean result = validator.isValid(sensorDataDto);
 
         Assertions.assertFalse(result);
-        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), any(SensorType.class), anyString());
+        verify(managedSensorTypeService, times(1)).isManaged(anyString());
+        verify(sensorInfoService, never()).findSensorInfo(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("검증 실패: 등록되지 않은 센서")
+    void test_isValid_returnFalse_unregisteredSensor() {
+        when(managedSensorTypeService.isManaged(anyString())).thenReturn(true);
+        when(sensorInfoService.findSensorInfo(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+
+        boolean result = validator.isValid(sensorDataDto);
+
+        Assertions.assertFalse(result);
+        verify(managedSensorTypeService, times(1)).isManaged(anyString());
+        verify(sensorInfoService, times(1)).findSensorInfo(anyString(), anyString(), anyString());
     }
 }
