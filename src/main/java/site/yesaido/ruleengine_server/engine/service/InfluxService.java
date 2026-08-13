@@ -20,14 +20,18 @@ public class InfluxService {
     public void save(SensorValueEvent event) {
         try {
             influxDBClient.getWriteApiBlocking().writePoint(
-                    properties.getOrg(),
                     properties.getBucket(),
+                    properties.getOrg(),
                     pointMapper.toPoint(event)
             );
         } catch (Exception e) {
-            log.error("{}", e.getMessage());
+            log.error(
+                    "[InfluxDB] write failed: cultivationId={}, deviceEui={}, sensorType={}, timestamp={}",
+                    event.cultivationId(), event.deviceEui(), event.sensorType(), event.time(), e
+            );
+            return;
         }
-        log.debug("[InfluxDB] 데이터 적제됨: {}", event);
+        log.debug("[InfluxDB] 데이터 적재됨: {}", event);
     }
 
 }

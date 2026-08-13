@@ -38,7 +38,6 @@ public class RuleEngine {
     }
 
     private void publishRealTimeData(SensorDataDto dto) {
-        log.debug("[RuleEngine] 발행 테스트: {}", dto);
         influxService.save(SensorValueEvent.from(dto));
     }
 }

@@ -63,7 +63,7 @@ public class CollectorService {
      */
     private void validateAndPublish(SensorDataDto sensorDataDto) {
         if (!sensorDataValidator.isValid(sensorDataDto)) {
-//            log.warn("[Collector - Validation] 검증 실패: {}", sensorDataDto);
+            log.warn("[Collector - Validation] 검증 실패: {}", sensorDataDto);
             return;
         }
 
