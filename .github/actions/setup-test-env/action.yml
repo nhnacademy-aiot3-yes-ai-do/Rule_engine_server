@@ -18,5 +18,12 @@ runs:
 
         echo "MQTT_BROKER_URL=tcp://localhost:1883" >> "$GITHUB_ENV"
         echo "MQTT_CLIENT_ID=mushmush-ruleengine-server-ci" >> "$GITHUB_ENV"
-#        echo "MQTT_USERNAME=" >> "$GITHUB_ENV"
-#        echo "MQTT_PASSWORD=" >> "$GITHUB_ENV"
+        # echo "MQTT_USERNAME=" >> "$GITHUB_ENV"
+        # echo "MQTT_PASSWORD=" >> "$GITHUB_ENV"
+
+        echo "INFLUX_URL=http://localhost:8086" >> "$GITHUB_ENV"
+        echo "INFLUX_ORG=yes-nhn" >> "$GITHUB_ENV"
+        echo "INFLUX_BUCKET=sensor-data" >> "$GITHUB_ENV"
+        echo "INFLUX_TOKEN=ci-test-token" >> "$GITHUB_ENV"
+        echo "CF_ACCESS_CLIENT_ID=" >> "$GITHUB_ENV"
+        echo "CF_ACCESS_CLIENT_SECRET=" >> "$GITHUB_ENV"

@@ -51,7 +51,7 @@ public class SensorDataValidator {
         Optional<SensorInfoDto> optionalSensorInfoDto = sensorInfoService.findSensorInfo(deviceEui, sensorType, unit);
 
         if (optionalSensorInfoDto.isEmpty()) {
-//            log.warn("미등록 센서 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
+            log.warn("미등록 센서 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
             return false;
         }
 

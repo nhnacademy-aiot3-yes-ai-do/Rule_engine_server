@@ -95,7 +95,7 @@ public class ChirpStackTopicParser implements SensorDataParser {
                         case TEMPERATURE -> "°C";
                         case HUMIDITY -> "%";
                         case CO2 -> "ppm";
-                        case LIGHT -> "lx";
+                        case LIGHT -> "lux";
                     }
             ));
         });
