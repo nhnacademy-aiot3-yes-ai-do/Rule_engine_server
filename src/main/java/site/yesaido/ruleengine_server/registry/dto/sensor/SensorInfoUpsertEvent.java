@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
 /**
- * 센서 정보를 담고 있는 DTO입니다.
+ * 센서 정보의 추가/수정을 위한 DTO입니다.
  */
 @Getter
 @Setter
