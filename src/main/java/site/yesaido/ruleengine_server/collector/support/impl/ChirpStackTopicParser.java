@@ -1,9 +1,9 @@
 package site.yesaido.ruleengine_server.collector.support.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
@@ -21,11 +21,15 @@ import java.util.Map;
  * {@link SensorDataParser}의 <strong>ChirpStack</strong> 토픽 전용 구현체입니다.<br>
  * 토픽이 <strong>application</strong>으로 시작하는 메세지에 대한 파싱을 담당합니다.
  */
-@RequiredArgsConstructor
 @Component
 public class ChirpStackTopicParser implements SensorDataParser {
 
     private final ObjectMapper objectMapper;
+
+    public ChirpStackTopicParser(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper.copy()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    }
 
     private static final Map<String, SensorType> OBJECT_KEY_MAPPING = Map.of(
             "temperature", SensorType.TEMPERATURE,

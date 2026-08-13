@@ -39,8 +39,8 @@ public class ThresholdInfoDto {
     public void applyRange(SensorRange sensorRange) {
 
         ranges.put(
-                sensorRange.getSensorType(),
-                new Range(sensorRange.getMinValue(), sensorRange.getMaxValue())
+                buildKey(sensorRange.getSensorType(), sensorRange.getUnit()),
+                new Range(sensorRange.getUnit(), sensorRange.getMinValue(), sensorRange.getMaxValue())
         );
     }
 
@@ -53,7 +53,14 @@ public class ThresholdInfoDto {
     @AllArgsConstructor
     public static class Range {
 
+        private String unit;
         private BigDecimal min;
         private BigDecimal max;
+    }
+
+    // ======================================================================
+
+    private String buildKey(String sensorType, String unit) {
+        return "%s_%s".formatted(sensorType, unit);
     }
 }

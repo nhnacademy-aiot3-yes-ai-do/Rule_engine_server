@@ -25,6 +25,8 @@ public class ThresholdInfoService {
         List<SensorRange> sensorRangeList = thresholdInfoEvent.getSensorRangeList();
 
         if (sensorRangeList.size() >= 4) {
+            validateDistinctSensorTypes(sensorRangeList);
+
             ThresholdInfoDto newDto = ThresholdInfoDto.from(cultivationId, sensorRangeList);
 
             thresholdInfoRepository.upsert(newDto);
@@ -70,6 +72,19 @@ public class ThresholdInfoService {
                         .map(SensorRange::getSensorType)
                         .toList()
         );
+    }
+
+    private void validateDistinctSensorTypes(List<SensorRange> sensorRangeList) {
+        long distinctCount = sensorRangeList.stream()
+                .map(sensorRange -> "%s_%s".formatted(sensorRange.getSensorType(), sensorRange.getUnit()))
+                .distinct()
+                .count();
+
+        if (distinctCount != sensorRangeList.size()) {
+            throw new IllegalArgumentException(
+                    "sensorRangeList에 (sensorType, unit) 조합이 중복되어 있습니다: %s".formatted(sensorRangeList)
+            );
+        }
     }
 
 }

@@ -41,10 +41,10 @@ class ThresholdInfoRepositoryTest {
     @BeforeEach
     void setUp() {
         Map<String, ThresholdInfoDto.Range> ranges = new HashMap<>();
-        ranges.put("TEMPERATURE", new ThresholdInfoDto.Range(BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0)));
-        ranges.put("HUMIDITY", new ThresholdInfoDto.Range(BigDecimal.valueOf(60.0), BigDecimal.valueOf(80.0)));
-        ranges.put("CO2", new ThresholdInfoDto.Range(BigDecimal.valueOf(600.0), BigDecimal.valueOf(800.0)));
-        ranges.put("LIGHT", new ThresholdInfoDto.Range(BigDecimal.valueOf(0.0), BigDecimal.valueOf(500.0)));
+        ranges.put("TEMPERATURE", new ThresholdInfoDto.Range("°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0)));
+        ranges.put("HUMIDITY", new ThresholdInfoDto.Range("%", BigDecimal.valueOf(60.0), BigDecimal.valueOf(80.0)));
+        ranges.put("CO2", new ThresholdInfoDto.Range("ppm", BigDecimal.valueOf(600.0), BigDecimal.valueOf(800.0)));
+        ranges.put("LIGHT", new ThresholdInfoDto.Range("lx", BigDecimal.valueOf(0.0), BigDecimal.valueOf(500.0)));
 
         dto = new ThresholdInfoDto(
                 1L,

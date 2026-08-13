@@ -39,12 +39,12 @@ public class SensorDataValidator {
         String unit = sensorDataDto.getUnit();
 
         if (!managedSensorTypeService.isManaged(sensorType)) {
-            log.warn("미관리 센서 타입 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorDataDto);
+            log.warn("미관리 센서 타입 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
             return false;
         }
 
         if (value == null) {
-            log.warn("센서 값이 null인 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorDataDto);
+            log.warn("센서 값이 null인 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
             return false;
         }
 
