@@ -4,13 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
-import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
-import site.yesaido.ruleengine_server.global.exception.InvalidTopicFormatException;
+import site.yesaido.ruleengine_server.collector.exception.InvalidPayloadFormatException;
+import site.yesaido.ruleengine_server.collector.exception.InvalidTopicFormatException;
 import site.yesaido.ruleengine_server.global.util.SensorTypeUtils;
 
 import java.math.BigDecimal;
@@ -18,7 +17,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
- * {@link site.yesaido.ruleengine_server.collector.support.SensorDataParser}의 <strong>mushroom</strong> 토픽 전용 구현체입니다.<br>
+ * {@link SensorDataParser}의 <strong>mushroom</strong> 토픽 전용 구현체입니다.<br>
  * 토픽이 <strong>mushroom</strong>으로 시작하는 메세지에 대한 파싱을 담당합니다.
  */
 @Component

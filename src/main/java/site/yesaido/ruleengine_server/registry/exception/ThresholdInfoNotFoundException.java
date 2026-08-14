@@ -1,4 +1,4 @@
-package site.yesaido.ruleengine_server.global.exception;
+package site.yesaido.ruleengine_server.registry.exception;
 
 /**
  * 임계값 정보를 찾을 수 없는 경우 발생하는 예외입니다.

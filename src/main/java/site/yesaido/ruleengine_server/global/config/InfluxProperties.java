@@ -2,6 +2,9 @@ package site.yesaido.ruleengine_server.global.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * InfluxDB 연결 및 인증 정보를 바인딩하기 위한 프로퍼티 클래스입니다.
+ */
 @ConfigurationProperties(prefix = "influx")
 public class InfluxProperties {
 

@@ -6,6 +6,9 @@ import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistrar;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+/**
+ * RabbitListener 수신 메시지에 대한 Validation 설정을 구성하는 클래스입니다.
+ */
 @RequiredArgsConstructor
 @Configuration
 public class RabbitValidationConfig implements RabbitListenerConfigurer {

@@ -7,8 +7,11 @@ import okhttp3.OkHttpClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import site.yesaido.ruleengine_server.global.util.SensorValuePointMapper;
+import site.yesaido.ruleengine_server.engine.support.SensorValuePointMapper;
 
+/**
+ * InfluxDB 클라이언트({@link InfluxDBClient}) 및 데이터 매핑 관련 빈을 구성하는 설정 클래스입니다.
+ */
 @Configuration
 @EnableConfigurationProperties(InfluxProperties.class)
 public class InfluxConfig {

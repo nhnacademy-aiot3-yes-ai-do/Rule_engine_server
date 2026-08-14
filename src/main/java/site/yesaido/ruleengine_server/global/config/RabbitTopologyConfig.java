@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * RabbitMQ의 Exchange, Queue 및 Routing Key 바인딩 등 토폴로지를 구성하는 설정 클래스입니다.
+ */
 @Configuration
 public class RabbitTopologyConfig {
 

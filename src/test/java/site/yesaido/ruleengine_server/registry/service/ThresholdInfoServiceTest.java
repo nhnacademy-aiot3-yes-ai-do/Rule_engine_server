@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
-import site.yesaido.ruleengine_server.global.exception.ThresholdInfoNotFoundException;
+import site.yesaido.ruleengine_server.registry.exception.ThresholdInfoNotFoundException;
 import site.yesaido.ruleengine_server.registry.dto.threshold.SensorRange;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
