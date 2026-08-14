@@ -28,9 +28,9 @@ public class ThresholdInfoDto {
     private Long cultivationId;
 
     /**
-     * 센서 타입 및 단위별 적정 범위 매핑 맵 (Key: "sensorType_unit")
+     * 센서 타입 및 단위별 적정 범위 매핑 맵 (Key: "{sensorType}_{unit}")
      */
-    private Map<String, Range> ranges = new HashMap<>();
+    private Map<String, SensorRange> ranges = new HashMap<>();
 
     /**
      * 재배 환경 ID와 센서 임계값 범위 목록으로부터 {@link ThresholdInfoDto}를 생성하는 정적 팩토리 메서드입니다.
@@ -58,42 +58,21 @@ public class ThresholdInfoDto {
 
         ranges.put(
                 buildKey(sensorRange.getSensorType(), sensorRange.getUnit()),
-                new Range(sensorRange.getUnit(), sensorRange.getMinValue(), sensorRange.getMaxValue())
+                sensorRange
         );
     }
 
     /**
      * 특정 키(예: "{sensorType}_{unit}")에 해당하는 임계값 범위를 조회합니다.
      *
-     * @param sensorType 조회할 키 (또는 센서 타입)
-     * @return 해당 센서의 임계값 범위({@link Range})
+     * @param sensorType 조회할 키로 사용할 센서 타입
+     * @param unit 조회할 키로 사용할 단위
+     * @return 해당 센서의 임계값 범위({@link SensorRange})
      */
-    public Range getRange(String sensorType) {
-        return ranges.get(sensorType);
-    }
-
-    /**
-     * 센서의 측정 단위 및 적정 최솟값, 최댓값 범위를 나타내는 내부 클래스입니다.
-     */
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Range {
-
-        /**
-         * 센서 측정 단위
-         */
-        private String unit;
-
-        /**
-         * 적정 범위 최솟값
-         */
-        private BigDecimal min;
-
-        /**
-         * 적정 범위 최댓값
-         */
-        private BigDecimal max;
+    public SensorRange getRange(String sensorType, String unit) {
+        return ranges.get(
+                buildKey(sensorType, unit)
+        );
     }
 
     // ======================================================================

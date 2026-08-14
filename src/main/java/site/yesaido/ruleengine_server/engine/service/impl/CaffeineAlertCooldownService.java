@@ -8,16 +8,16 @@ import site.yesaido.ruleengine_server.engine.dto.SensorKey;
 import site.yesaido.ruleengine_server.engine.service.AlertCooldownService;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class CaffeineAlertCooldownService implements AlertCooldownService {
 
     private final Cache<SensorKey, Boolean> cache;
+    private final Map<SensorKey, Boolean> stateMap = new ConcurrentHashMap<>();
 
-    @Value("${rule-engine.alert.cooldown.minutes}")
-    private long alertCooldown;
-
-    public CaffeineAlertCooldownService() {
+    public CaffeineAlertCooldownService(@Value("${rule-engine.alert.cooldown.minutes}") long alertCooldown) {
         this.cache = Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofMinutes(alertCooldown))
                 .build();
@@ -34,7 +34,18 @@ public class CaffeineAlertCooldownService implements AlertCooldownService {
     }
 
     @Override
-    public void resetCooldown(SensorKey sensorKey) {
-        cache.invalidate(sensorKey);
+    public boolean isCurrentlyExceeded(SensorKey sensorKey) {
+        return Boolean.TRUE.equals(stateMap.get(sensorKey));
     }
+
+    @Override
+    public void markExceeded(SensorKey sensorKey) {
+        stateMap.put(sensorKey, true);
+    }
+
+    @Override
+    public void markNormal(SensorKey sensorKey) {
+        stateMap.remove(sensorKey);
+    }
+
 }

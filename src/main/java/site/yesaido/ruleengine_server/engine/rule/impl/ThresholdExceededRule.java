@@ -8,6 +8,7 @@ import site.yesaido.ruleengine_server.engine.rule.Rule;
 import site.yesaido.ruleengine_server.engine.service.AlertCooldownService;
 import site.yesaido.ruleengine_server.engine.service.NotificationService;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.threshold.SensorRange;
 
 import java.math.BigDecimal;
 
@@ -26,14 +27,14 @@ public class ThresholdExceededRule implements Rule {
 
     @Override
     public void evaluate(SensorDataDto sensorData, ThresholdInfoDto thresholdInfo) {
-        ThresholdInfoDto.Range range = thresholdInfo.getRange(sensorData.getSensorType());
-        if (range == null) {
+        SensorRange sensorRange = thresholdInfo.getRange(sensorData.getSensorType(), sensorData.getUnit());
+        if (sensorRange == null) {
             return;
         }
 
         BigDecimal sensorValue = sensorData.getValue();
-        BigDecimal thresholdMin = range.getMin();
-        BigDecimal thresholdMax = range.getMax();
+        BigDecimal thresholdMin = sensorRange.getMinValue();
+        BigDecimal thresholdMax = sensorRange.getMaxValue();
 
         boolean exceeded = sensorValue.compareTo(thresholdMin) < 0 || sensorValue.compareTo(thresholdMax) > 0;
 
@@ -44,14 +45,19 @@ public class ThresholdExceededRule implements Rule {
         );
 
         if (exceeded) {
-            if (!alertCooldownService.canAlert(sensorKey)) {
-                return;
+            if (alertCooldownService.canAlert(sensorKey)) {
+                notificationService.sendAlert(); // 초과 알림
+                alertCooldownService.recordAlert(sensorKey);
             }
 
-            notificationService.sendAlert();
-            alertCooldownService.recordAlert(sensorKey);
+            alertCooldownService.markExceeded(sensorKey);
+
+            return;
         }
 
-        alertCooldownService.resetCooldown(sensorKey);
+        if(alertCooldownService.isCurrentlyExceeded(sensorKey)) {
+            notificationService.sendAlert(); // 복귀 알림
+            alertCooldownService.markNormal(sensorKey);
+        }
     }
 }
