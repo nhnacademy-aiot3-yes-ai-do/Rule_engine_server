@@ -46,6 +46,11 @@ influx:
         access-client-id: ${CF_ACCESS_CLIENT_ID:}
         access-client-secret: ${CF_ACCESS_CLIENT_SECRET:}
 
+rule-engine:
+    alert:
+        cooldown:
+            minutes: 10
+
 logging:
     level:
         site.yesaido.ruleengine_server: debug

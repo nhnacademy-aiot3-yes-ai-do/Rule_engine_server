@@ -63,7 +63,7 @@ public class ThresholdInfoDto {
     }
 
     /**
-     * 특정 키(예: "sensorType_unit")에 해당하는 임계값 범위를 조회합니다.
+     * 특정 키(예: "{sensorType}_{unit}")에 해당하는 임계값 범위를 조회합니다.
      *
      * @param sensorType 조회할 키 (또는 센서 타입)
      * @return 해당 센서의 임계값 범위({@link Range})
@@ -103,7 +103,7 @@ public class ThresholdInfoDto {
      *
      * @param sensorType 센서 종류
      * @param unit       측정 단위
-     * @return "sensorType_unit" 형식의 복합 키 문자열
+     * @return "{sensorType}_{unit}" 형식의 복합 키 문자열
      */
     private String buildKey(String sensorType, String unit) {
         return "%s_%s".formatted(sensorType, unit);

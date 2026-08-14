@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
-import site.yesaido.ruleengine_server.engine.service.RuleEngine;
+import site.yesaido.ruleengine_server.engine.core.RuleEngine;
 
 import static org.mockito.Mockito.*;
 

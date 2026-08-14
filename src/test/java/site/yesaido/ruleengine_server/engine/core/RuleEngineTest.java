@@ -1,4 +1,4 @@
-package site.yesaido.ruleengine_server.engine.service;
+package site.yesaido.ruleengine_server.engine.core;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
+import site.yesaido.ruleengine_server.engine.service.InfluxService;
 import site.yesaido.ruleengine_server.global.dto.SensorValueEvent;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
 import site.yesaido.ruleengine_server.registry.service.ThresholdInfoService;
