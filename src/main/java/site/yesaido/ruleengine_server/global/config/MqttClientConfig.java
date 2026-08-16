@@ -8,6 +8,9 @@ import org.eclipse.paho.mqttv5.common.MqttException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
+
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Configuration
@@ -18,6 +21,12 @@ public class MqttClientConfig {
 
     @Value("${mqtt.client-id}")
     private String clientId;
+
+    @Value("${mqtt.username:}")
+    private String username;
+
+    @Value("${mqtt.password:}")
+    private String password;
 
     @Bean
     public MqttAsyncClient mqttAsyncClient() throws MqttException {
@@ -32,6 +41,13 @@ public class MqttClientConfig {
         options.setAutomaticReconnect(true);
         options.setCleanStart(false);
         options.setConnectionTimeout(10);
+
+        if (StringUtils.hasText(username)) {
+            options.setUserName(username);
+        }
+        if (StringUtils.hasText(password)) {
+            options.setPassword(password.getBytes(StandardCharsets.UTF_8));
+        }
 
         return options;
     }
