@@ -33,6 +33,7 @@ custom-rabbitmq:
     queue:
         threshold-info: "yes-nhn.rule-engine.threshold-info.queue"
         sensor-info: "yes-nhn.rule-engine.sensor-info.queue"
+        notification-threshold: "yes-nhn.notification.threshold.queue"
     exchange:
         from-cultivation: "yes-nhn.sensor.exchange"
         to-notification : "yes-nhn.notification.exchange"
