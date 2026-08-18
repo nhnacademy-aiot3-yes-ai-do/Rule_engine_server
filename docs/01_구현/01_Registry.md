@@ -36,8 +36,7 @@ SensorInfoConsumer
 메시지가 어떤 이벤트(생성/수정/삭제)에 해당하는지는 메시지 헤더(`__TypeId__`)에 담긴 문자열 값을 기준으로 판별합니다. 이 값과 실제 역직렬화할 DTO 클래스 간의 매핑은 `MessageConverter`(`RabbitMqConfig`)에 등록된 `idClassMapping`을 통해 관리합니다.
 
 ```java
-idClassMapping.put("cultivation.upsert", CultivationInfoDto.class);
-idClassMapping.put("cultivation.delete", CultivationInfoDeleteDto.class);
+idClassMapping.put("cultivation.crud", CultivationInfoDto.class);
 idClassMapping.put("sensor.upsert", SensorInfoDto.class);
 idClassMapping.put("sensor.delete", SensorInfoDeleteDto.class);
 ```

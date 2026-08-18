@@ -35,7 +35,7 @@ custom-rabbitmq:
         sensor-info: "yes-nhn.rule-engine.sensor-info.queue"
     exchange:
         from-cultivation: "yes-nhn.sensor.exchange"
-#        to-notification : "yes-nhn.notification.exchange"
+        to-notification : "yes-nhn.notification.exchange"
 
 influx:
     url: ${INFLUX_URL}

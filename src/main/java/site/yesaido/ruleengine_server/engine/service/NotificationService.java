@@ -1,13 +1,19 @@
 package site.yesaido.ruleengine_server.engine.service;
 
 import org.springframework.stereotype.Service;
+import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
+import site.yesaido.ruleengine_server.registry.dto.threshold.SensorRange;
 
 // todo : NotificationService 구현
 
 @Service
 public class NotificationService {
 
-    public void sendAlert(/* ... */) {
+    public void sendThresholdExceededAlert(SensorDataDto sensorData, SensorRange sensorRange) {
+
+    }
+
+    public void sendThresholdRecoveredAlert(SensorDataDto sensorData, SensorRange sensorRange) {
 
     }
 
