@@ -29,8 +29,7 @@ public class RuleEngine {
 
     public void start(SensorDataDto dto) {
 
-         Optional<ThresholdInfoDto> cultivationInfoDtoOptional =
-                 thresholdInfoService.findCultivationInfo(dto.getCultivationId());
+         Optional<ThresholdInfoDto> cultivationInfoDtoOptional = thresholdInfoService.findCultivationInfo(dto.getCultivationId());
 
          if (cultivationInfoDtoOptional.isEmpty()) {
              log.warn("임계값 정보 없음 - 판단 보류: cultivationId={}", dto.getCultivationId());

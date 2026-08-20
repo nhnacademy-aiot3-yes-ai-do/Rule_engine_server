@@ -47,12 +47,14 @@ class ChirpStackTopicParserTest {
                   "object": {
                     "humidity": 54.5,
                     "battery": 60.0,
-                    "temperature": 25.3
+                    "temperature": 25.3,
+                    "co2": 1.1,
+                    "illumination": 2.2
                   }
                 }
                 """;
         List<SensorDataDto> dtoList = parser.parse("application/#", payload);
-        Assertions.assertEquals(2, dtoList.size());
+        Assertions.assertEquals(4, dtoList.size());
 
         SensorDataDto sampleDto = dtoList.getFirst();
         Assertions.assertEquals("사무실", sampleDto.getPlace());
@@ -72,6 +74,18 @@ class ChirpStackTopicParserTest {
                 .findFirst()
                 .orElseThrow();
         Assertions.assertEquals(BigDecimal.valueOf(54.5), humidityDto.getValue());
+
+        SensorDataDto co2Dto = dtoList.stream()
+                .filter(dto -> dto.getSensorType().equals(SensorType.CO2.name()))
+                .findFirst()
+                .orElseThrow();
+        Assertions.assertEquals(BigDecimal.valueOf(1.1), co2Dto.getValue());
+
+        SensorDataDto lightDto = dtoList.stream()
+                .filter(dto -> dto.getSensorType().equals(SensorType.LIGHT.name()))
+                .findFirst()
+                .orElseThrow();
+        Assertions.assertEquals(BigDecimal.valueOf(2.2), lightDto.getValue());
     }
 
     @Test

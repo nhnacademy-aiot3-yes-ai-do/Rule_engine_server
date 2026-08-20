@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
-import site.yesaido.ruleengine_server.registry.exception.ThresholdInfoNotFoundException;
 import site.yesaido.ruleengine_server.registry.dto.threshold.SensorRange;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
@@ -27,51 +26,14 @@ public class ThresholdInfoService {
     /**
      * 재배 환경 정보 이벤트({@link ThresholdInfoEvent})를 전달받아 등록, 수정, 삭제 처리를 수행합니다.
      * <ul>
-     *     <li>{@code sensorRangeList.size() >= 4}: 신규 임계값 정보 등록 및 센서 타입 관리 목록 등록</li>
-     *     <li>{@code sensorRangeList.size() == 1}: 기존 임계값 정보 특정 범주 수정</li>
      *     <li>{@code sensorRangeList.isEmpty()}: 임계값 정보 삭제</li>
+     *     <li>{@code sensorRangeList.size() >= 1}: 신규 임계값 정보 등록 및 센서 타입 관리 목록 등록</li>
      * </ul>
      *
      * @param thresholdInfoEvent 재배 환경 정보 이벤트 DTO
      */
     public void processThresholdInfoEvent(ThresholdInfoEvent thresholdInfoEvent) {
-//        Long cultivationId = thresholdInfoEvent.getCultivationId();
-//        List<SensorRange> sensorRangeList = thresholdInfoEvent.getSensorRangeList();
-//
-//        if (sensorRangeList.size() >= 4) {
-//            validateDistinctSensorTypes(sensorRangeList);
-//
-//            ThresholdInfoDto newDto = ThresholdInfoDto.from(cultivationId, sensorRangeList);
-//
-//            thresholdInfoRepository.upsert(newDto);
-//            log.debug("[ThresholdInfoService] 임계값 정보 신규 등록 : {}", newDto);
-//
-//            registerSensorTypes(sensorRangeList);
-//
-//            return;
-//        }
-//
-//        if (sensorRangeList.size() == 1) {
-//            ThresholdInfoDto toUpdate = thresholdInfoRepository.findByCultivationId(cultivationId)
-//                    .orElseThrow(() -> new ThresholdInfoNotFoundException(cultivationId));
-//
-//            toUpdate.applyRange(sensorRangeList.getFirst());
-//            thresholdInfoRepository.upsert(toUpdate);
-//            log.debug("[ThresholdInfoService] 임계값 정보 수정 : {}", toUpdate);
-//
-//            registerSensorTypes(sensorRangeList);
-//
-//            return;
-//        }
-//
-//        if (sensorRangeList.isEmpty()) {
-//            thresholdInfoRepository.deleteByCultivationId(cultivationId);
-//            log.debug("[ThresholdInfoService] 임계값 정보 삭제 : cultivationId={}", cultivationId);
-//
-//            return;
-//        }
-//
-//        log.warn("[ThresholdInfoService] 추가/수정/삭제 중 어느 것도 이루어지지 않았습니다. {}", thresholdInfoEvent);
+
         Long cultivationId = thresholdInfoEvent.getCultivationId();
         List<SensorRange> sensorRangeList = thresholdInfoEvent.getSensorRangeList();
 
