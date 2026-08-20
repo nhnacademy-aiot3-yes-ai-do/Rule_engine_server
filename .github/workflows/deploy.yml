@@ -55,6 +55,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      mosquitto:
+        image: eclipse-mosquitto:2
+        ports:
+          - 1883:1883
+
     steps:
       - uses: actions/checkout@v4
         with:
