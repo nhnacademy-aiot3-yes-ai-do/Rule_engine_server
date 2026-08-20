@@ -1,0 +1,29 @@
+# actions/setup-test-env/action.yml
+name: Setup test env
+description: CI 테스트용 Redis/RabbitMQ/MQTT 환경변수 설정
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        echo "REDIS_HOST=localhost" >> "$GITHUB_ENV"
+        echo "REDIS_PORT=6379" >> "$GITHUB_ENV"
+        echo "REDIS_PASSWORD=" >> "$GITHUB_ENV"
+        echo "REDIS_DATABASE=0" >> "$GITHUB_ENV"
+
+        echo "RABBITMQ_HOST=localhost" >> "$GITHUB_ENV"
+        echo "RABBITMQ_PORT=5672" >> "$GITHUB_ENV"
+        echo "RABBITMQ_USERNAME=guest" >> "$GITHUB_ENV"
+        echo "RABBITMQ_PASSWORD=guest" >> "$GITHUB_ENV"
+
+        echo "MQTT_BROKER_URL=tcp://localhost:1883" >> "$GITHUB_ENV"
+        echo "MQTT_CLIENT_ID=mushmush-ruleengine-server-ci" >> "$GITHUB_ENV"
+        # echo "MQTT_USERNAME=" >> "$GITHUB_ENV"
+        # echo "MQTT_PASSWORD=" >> "$GITHUB_ENV"
+
+        echo "INFLUX_URL=http://localhost:8086" >> "$GITHUB_ENV"
+        echo "INFLUX_ORG=yes-nhn" >> "$GITHUB_ENV"
+        echo "INFLUX_BUCKET=sensor-data" >> "$GITHUB_ENV"
+        echo "INFLUX_TOKEN=ci-test-token" >> "$GITHUB_ENV"
+        echo "CF_ACCESS_CLIENT_ID=" >> "$GITHUB_ENV"
+        echo "CF_ACCESS_CLIENT_SECRET=" >> "$GITHUB_ENV"

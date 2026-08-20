@@ -1,0 +1,65 @@
+package site.yesaido.ruleengine_server.registry.repository.impl;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Repository;
+import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
+
+import java.util.Optional;
+
+/**
+ * SensorInfoRepository의 Redis 기반 구현체입니다.<br>
+ * Collector validation 및 RuleEngine 판단 시 필요한 센서 정보를 Redis에 저장 및 조회합니다.
+ */
+@RequiredArgsConstructor
+@Repository
+public class SensorInfoRedisRepository implements SensorInfoRepository {
+
+    private static final String KEY_TEMPLATE = "sensor:%s:%s:%s";
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public void upsert(SensorInfoDto dto) {
+        redisTemplate.opsForValue().set(
+                buildKey(dto.getDeviceEui(), dto.getSensorType(), dto.getUnit()),
+                dto
+        );
+    }
+
+    @Override
+    public Optional<SensorInfoDto> findByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit) {
+        Object rawValue = redisTemplate.opsForValue().get(buildKey(deviceEui, sensorType, unit));
+
+        if (rawValue == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(
+                objectMapper.convertValue(rawValue, SensorInfoDto.class)
+        );
+    }
+
+    @Override
+    public void deleteByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit) {
+        redisTemplate.delete(
+                buildKey(deviceEui, sensorType, unit)
+        );
+    }
+
+    @Override
+    public boolean existsByDeviceEuiAndSensorType(String deviceEui, String sensorType, String unit) {
+        return Boolean.TRUE.equals(
+                redisTemplate.hasKey(buildKey(deviceEui, sensorType, unit))
+        );
+    }
+
+    // ==================================================
+
+    private String buildKey(String deviceEui, String sensorType, String unit) {
+        return KEY_TEMPLATE.formatted(deviceEui, sensorType, unit);
+    }
+}
