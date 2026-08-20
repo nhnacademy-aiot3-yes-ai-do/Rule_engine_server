@@ -20,7 +20,7 @@ jobs:
     uses: nhnacademy-aiot3-yes-ai-do/Webhook/.github/workflows/discord-pr-notify.yml@main
 
     with:
-      service_name: ruleengine-server
+      service_name: rule-engine-server
       pr_number: ${{ github.event.pull_request.number }}
       pr_title: ${{ github.event.pull_request.title }}
       pr_url: ${{ github.event.pull_request.html_url }}
