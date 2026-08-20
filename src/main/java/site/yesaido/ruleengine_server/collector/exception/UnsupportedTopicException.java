@@ -1,4 +1,4 @@
-package site.yesaido.ruleengine_server.global.exception;
+package site.yesaido.ruleengine_server.collector.exception;
 
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
 

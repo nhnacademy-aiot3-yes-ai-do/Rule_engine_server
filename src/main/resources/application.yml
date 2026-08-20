@@ -33,9 +33,10 @@ custom-rabbitmq:
     queue:
         threshold-info: "yes-nhn.rule-engine.threshold-info.queue"
         sensor-info: "yes-nhn.rule-engine.sensor-info.queue"
+        notification-threshold: "yes-nhn.notification.threshold.queue"
     exchange:
         from-cultivation: "yes-nhn.sensor.exchange"
-#        to-notification : "yes-nhn.notification.exchange"
+        to-notification : "yes-nhn.notification.exchange"
 
 influx:
     url: ${INFLUX_URL}
@@ -45,6 +46,11 @@ influx:
     cloudflare:
         access-client-id: ${CF_ACCESS_CLIENT_ID:}
         access-client-secret: ${CF_ACCESS_CLIENT_SECRET:}
+
+rule-engine:
+    alert:
+        cooldown:
+            minutes: 10
 
 logging:
     level:

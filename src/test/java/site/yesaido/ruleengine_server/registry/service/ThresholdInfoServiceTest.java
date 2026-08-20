@@ -8,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
-import site.yesaido.ruleengine_server.global.exception.ThresholdInfoNotFoundException;
 import site.yesaido.ruleengine_server.registry.dto.threshold.SensorRange;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
@@ -53,86 +52,6 @@ class ThresholdInfoServiceTest {
 
         dto = ThresholdInfoDto.from(event.getCultivationId(), event.getSensorRangeList());
     }
-
-//    @Test
-//    void test_processThresholdInfoEvent_whenSensorRangeListSizeIsFour() {
-//
-//        thresholdInfoService.processThresholdInfoEvent(event);
-//
-//        verify(thresholdInfoRepository, times(1)).upsert(any(ThresholdInfoDto.class));
-//        verify(managedSensorTypeService, times(1)).registerAll(anyList());
-//
-//        verify(thresholdInfoRepository, never()).findByCultivationId(anyLong());
-//        verify(thresholdInfoRepository, never()).deleteByCultivationId(anyLong());
-//    }
-//
-//    @Test
-//    void test_processThresholdInfoEvent_whenSensorRangeListSizeIsOne() {
-//
-//        SensorRange rangeToUpdate = new SensorRange("TEMPERATURE", "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0));
-//        ThresholdInfoEvent updateEvent = new ThresholdInfoEvent(1L, List.of(rangeToUpdate), OffsetDateTime.now());
-//
-//        ThresholdInfoDto existingDto = mock(ThresholdInfoDto.class);
-//        when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.ofNullable(existingDto));
-//
-//        thresholdInfoService.processThresholdInfoEvent(updateEvent);
-//
-//        verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
-//        verify(existingDto, times(1)).applyRange(rangeToUpdate);
-//        verify(thresholdInfoRepository, times(1)).upsert(any(ThresholdInfoDto.class));
-//        verify(managedSensorTypeService, times(1)).registerAll(anyList());
-//
-//        verify(thresholdInfoRepository, never()).deleteByCultivationId(anyLong());
-//    }
-//
-//    @Test
-//    void test_processThresholdInfoEvent_whenSensorRangeListSizeIsOne_fail() {
-//
-//        SensorRange rangeToUpdate = new SensorRange("TEMPERATURE", "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0));
-//        ThresholdInfoEvent updateEvent = new ThresholdInfoEvent(1L, List.of(rangeToUpdate));
-//
-//        when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.empty());
-//
-//        Assertions.assertThrows(ThresholdInfoNotFoundException.class, () -> thresholdInfoService.processThresholdInfoEvent(updateEvent));
-//
-//        verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
-//        verify(thresholdInfoRepository, never()).upsert(any(ThresholdInfoDto.class));
-//        verify(thresholdInfoRepository, never()).deleteByCultivationId(anyLong());
-//        verify(managedSensorTypeService, never()).registerAll(anyList());
-//    }
-//
-//    @Test
-//    void test_processThresholdInfoEvent_whenSensorRangeListSizeIsZero() {
-//
-//        ThresholdInfoEvent deleteEvent = new ThresholdInfoEvent(1L, Collections.emptyList());
-//
-//        thresholdInfoService.processThresholdInfoEvent(deleteEvent);
-//
-//        verify(thresholdInfoRepository, times(1)).deleteByCultivationId(anyLong());
-//        verify(thresholdInfoRepository, never()).upsert(any(ThresholdInfoDto.class));
-//        verify(thresholdInfoRepository, never()).findByCultivationId(anyLong());
-//        verify(managedSensorTypeService, never()).registerAll(anyList());
-//    }
-//
-//    @Test
-//    void test_findCultivationInfo_success() {
-//        when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.ofNullable(dto));
-//
-//        Optional<ThresholdInfoDto> cultivationInfoDtoOptional = thresholdInfoService.findCultivationInfo(dto.getCultivationId());
-//
-//        Assertions.assertTrue(cultivationInfoDtoOptional.isPresent());
-//        verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
-//    }
-//
-//    @Test
-//    void test_findCultivationInfo_fail() {
-//        when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.empty());
-//
-//        Optional<ThresholdInfoDto> cultivationInfoDtoOptional = thresholdInfoService.findCultivationInfo(dto.getCultivationId());
-//
-//        Assertions.assertTrue(cultivationInfoDtoOptional.isEmpty());
-//        verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
-//    }
 
     @Test
     void test_processThresholdInfoEvent_whenNoExistingRecord_createsNew() {
@@ -201,5 +120,26 @@ class ThresholdInfoServiceTest {
         verify(thresholdInfoRepository, never()).upsert(any(ThresholdInfoDto.class));
         verify(thresholdInfoRepository, never()).findByCultivationId(anyLong());
         verify(managedSensorTypeService, never()).registerAll(anyList());
+    }
+
+    @Test
+    void test_processThresholdInfoEvent_whenSensorRangeDuplicate_throwException() {
+
+        sensorRangeList.add(new SensorRange("TEMPERATURE", "°C", BigDecimal.valueOf(20.0), BigDecimal.valueOf(30.0)));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> thresholdInfoService.processThresholdInfoEvent(event));
+    }
+
+    @Test
+    void test_findCultivationInfo() {
+
+        when(thresholdInfoRepository.findByCultivationId(anyLong())).thenReturn(Optional.of(dto));
+
+        Optional<ThresholdInfoDto> thresholdInfoDtoOptional = thresholdInfoService.findCultivationInfo(1L);
+
+        Assertions.assertTrue(thresholdInfoDtoOptional.isPresent());
+        Assertions.assertEquals(dto, thresholdInfoDtoOptional.get());
+
+        verify(thresholdInfoRepository, times(1)).findByCultivationId(anyLong());
     }
 }

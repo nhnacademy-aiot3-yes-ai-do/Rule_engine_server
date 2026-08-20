@@ -1,15 +1,17 @@
-package site.yesaido.ruleengine_server.engine.service;
+package site.yesaido.ruleengine_server.engine.core;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.service.CollectorService;
+import site.yesaido.ruleengine_server.engine.rule.Rule;
+import site.yesaido.ruleengine_server.engine.service.InfluxService;
 import site.yesaido.ruleengine_server.global.dto.SensorValueEvent;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
-import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
 import site.yesaido.ruleengine_server.registry.service.ThresholdInfoService;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,10 +25,11 @@ public class RuleEngine {
 
     private final ThresholdInfoService thresholdInfoService;
     private final InfluxService influxService;
+    private final List<Rule> rules;
 
     public void start(SensorDataDto dto) {
-         Optional<ThresholdInfoDto> cultivationInfoDtoOptional =
-                 thresholdInfoService.findCultivationInfo(dto.getCultivationId());
+
+         Optional<ThresholdInfoDto> cultivationInfoDtoOptional = thresholdInfoService.findCultivationInfo(dto.getCultivationId());
 
          if (cultivationInfoDtoOptional.isEmpty()) {
              log.warn("임계값 정보 없음 - 판단 보류: cultivationId={}", dto.getCultivationId());
@@ -35,6 +38,10 @@ public class RuleEngine {
 
          publishRealTimeData(dto);
 
+         ThresholdInfoDto thresholdInfoDto = cultivationInfoDtoOptional.get();
+         rules.stream()
+                .filter(rule -> rule.supports(dto))
+                .forEach(rule -> rule.evaluate(dto, thresholdInfoDto));
     }
 
     private void publishRealTimeData(SensorDataDto dto) {

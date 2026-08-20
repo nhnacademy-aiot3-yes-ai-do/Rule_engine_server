@@ -8,6 +8,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
+/**
+ * 비동기 처리를 위한 ThreadPoolTaskExecutor 빈들을 정의하는 설정 클래스입니다.
+ */
 @EnableAsync
 @Configuration
 public class AsyncConfig {

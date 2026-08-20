@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.global.config.InfluxProperties;
 import site.yesaido.ruleengine_server.global.dto.SensorValueEvent;
-import site.yesaido.ruleengine_server.global.util.SensorValuePointMapper;
+import site.yesaido.ruleengine_server.engine.support.SensorValuePointMapper;
 
 @Slf4j
 @RequiredArgsConstructor

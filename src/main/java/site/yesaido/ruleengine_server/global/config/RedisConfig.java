@@ -7,6 +7,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+/**
+ * Redis 연결 팩토리 및 RedisTemplate 직렬화 방식을 구성하는 설정 클래스입니다.
+ */
 @Configuration
 public class RedisConfig {
 

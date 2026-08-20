@@ -13,7 +13,7 @@ public interface ManagedSensorTypeRepository {
      * sensorType을 관리 목록에 등록합니다. <br>
      * 이미 등록된 sensorType이면 아무 동작도 하지 않습니다.
      *
-     * @param sensorType 등록된 센서 타입
+     * @param sensorType 등록할 센서 타입
      */
     void register(String sensorType);
 
@@ -21,7 +21,7 @@ public interface ManagedSensorTypeRepository {
      * 해당 sensorType이 관리 목록에 등록되어 있는지 확인합니다.
      *
      * @param sensorType 확인할 센서 타입
-     * @return {@code true} 등록되어 있는 경우
+     * @return {@code true} 등록되어 있는 경우, 그렇지 않으면 {@code false}
      */
     boolean isManaged(String sensorType);
 

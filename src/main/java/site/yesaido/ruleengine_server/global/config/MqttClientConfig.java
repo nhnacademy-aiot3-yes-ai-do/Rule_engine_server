@@ -12,6 +12,9 @@ import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * MQTT 비동기 클라이언트({@link MqttAsyncClient}) 및 연결 옵션({@link MqttConnectionOptions}) 빈을 구성하는 설정 클래스입니다.
+ */
 @Slf4j
 @Configuration
 public class MqttClientConfig {

@@ -9,7 +9,7 @@ import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.collector.dto.SupportedTopic;
 import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.global.dto.SensorType;
-import site.yesaido.ruleengine_server.global.exception.InvalidPayloadFormatException;
+import site.yesaido.ruleengine_server.collector.exception.InvalidPayloadFormatException;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
