@@ -29,7 +29,10 @@ public class MqttMessageSubscriber implements MqttCallback {
      */
     @Override
     public void disconnected(MqttDisconnectResponse mqttDisconnectResponse) {
-        log.warn("MQTT disconnected: {}", mqttDisconnectResponse.getReasonString());
+        log.warn("MQTT disconnected: reasonCode={}, reasonString={}, exception={}",
+                mqttDisconnectResponse.getReturnCode(),
+                mqttDisconnectResponse.getReasonString(),
+                mqttDisconnectResponse.getException() != null ? mqttDisconnectResponse.getException().getMessage() : null);
     }
 
     /**
