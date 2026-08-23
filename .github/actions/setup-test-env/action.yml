@@ -27,3 +27,5 @@ runs:
         echo "INFLUX_TOKEN=ci-test-token" >> "$GITHUB_ENV"
         echo "CF_ACCESS_CLIENT_ID=" >> "$GITHUB_ENV"
         echo "CF_ACCESS_CLIENT_SECRET=" >> "$GITHUB_ENV"
+        
+        echo "CULTIVATION_SERVER_URL=http://localhost:9001" >> "$GITHUB_ENV"
