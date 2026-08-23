@@ -69,7 +69,7 @@ public class RegistrySnapshotSynchronizationInitializer implements ApplicationRu
         }
     }
 
-    private boolean sleep(long millis) {
+    protected boolean sleep(long millis) {
         try {
             Thread.sleep(millis);
             return true;
