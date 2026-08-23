@@ -6,11 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Spring Boot 애플리케이션 컨텍스트 로딩 및 주요 Bean 등록 상태를 검증하는 테스트 클래스입니다.
  */
 @SpringBootTest
+@ActiveProfiles("local")
 class RuleEngineServerApplicationTests {
 
     @Autowired
