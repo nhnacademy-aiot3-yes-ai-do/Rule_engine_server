@@ -2,7 +2,6 @@ package site.yesaido.ruleengine_server.global.dto;
 
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 

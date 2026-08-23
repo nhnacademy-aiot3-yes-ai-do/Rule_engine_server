@@ -1,10 +1,8 @@
 package site.yesaido.ruleengine_server.collector.dto;
 
 import lombok.*;
-import site.yesaido.ruleengine_server.global.dto.SensorType;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 /**

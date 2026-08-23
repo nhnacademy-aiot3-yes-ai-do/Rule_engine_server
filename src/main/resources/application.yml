@@ -16,6 +16,8 @@ spring:
         port: ${RABBITMQ_PORT}
         username: ${RABBITMQ_USERNAME}
         password: ${RABBITMQ_PASSWORD}
+    main:
+        web-application-type: none
 
 eureka:
     client:
@@ -51,6 +53,11 @@ rule-engine:
     alert:
         cooldown:
             minutes: 10
+
+feign:
+  client:
+    cultivation-server:
+      url: ${CULTIVATION_SERVER_URL}
 
 logging:
     level:
