@@ -48,16 +48,19 @@ public class RegistrySnapshotSynchronizationInitializer implements ApplicationRu
             } catch (RegistrySnapshotSynchronizationException exception) {
                 if (attempt >= MAX_ATTEMPTS) {
                     log.error("초기 registry snapshot 동기화가 최대 시도 횟수를 초과했습니다. maxAttempts={}. "
-                                    + "MQTT/RabbitMQ 이벤트로 점진적으로 채워지는 것에 의존합니다.",
+                                    + "동기화 없이는 기존 센서 데이터가 계속 누락되므로 애플리케이션 시작을 실패시킵니다.",
                             MAX_ATTEMPTS, exception);
-                    return;
+                    throw exception;
                 }
 
                 log.warn("초기 registry snapshot 동기화에 실패해 재시도합니다. "
                                 + "attempt={}, nextAttempt={}, backoffMilliseconds={}",
                         attempt, attempt + 1, backoffMilliseconds, exception);
 
-                sleep(backoffMilliseconds);
+                if (!sleep(backoffMilliseconds)) {
+                    log.warn("초기 registry snapshot 동기화 재시도 대기 중 인터럽트가 발생해 재시도를 중단합니다. attempt={}", attempt);
+                    throw exception;
+                }
 
                 backoffMilliseconds = Math.min(
                         (long) (backoffMilliseconds * BACKOFF_MULTIPLIER), MAX_BACKOFF_MILLISECONDS);
@@ -66,11 +69,13 @@ public class RegistrySnapshotSynchronizationInitializer implements ApplicationRu
         }
     }
 
-    private void sleep(long millis) {
+    private boolean sleep(long millis) {
         try {
             Thread.sleep(millis);
+            return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            return false;
         }
     }
 }

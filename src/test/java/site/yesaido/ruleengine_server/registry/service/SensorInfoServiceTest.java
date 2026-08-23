@@ -8,11 +8,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
-import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
+import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 
 import java.util.Optional;
 

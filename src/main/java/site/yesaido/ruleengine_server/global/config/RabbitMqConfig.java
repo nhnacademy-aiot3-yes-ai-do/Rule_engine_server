@@ -6,10 +6,9 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import site.yesaido.ruleengine_server.engine.dto.ThresholdStatusChangedEvent;
-import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
 import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoDeleteEvent;
+import site.yesaido.ruleengine_server.registry.dto.sensor.SensorInfoUpsertEvent;
 import site.yesaido.ruleengine_server.registry.dto.threshold.ThresholdInfoEvent;
-
 
 import java.util.HashMap;
 import java.util.Map;

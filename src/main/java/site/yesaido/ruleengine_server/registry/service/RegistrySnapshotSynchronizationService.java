@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.global.dto.SensorInfoDto;
 import site.yesaido.ruleengine_server.global.dto.ThresholdInfoDto;
+import site.yesaido.ruleengine_server.global.util.SensorTypeUtils;
 import site.yesaido.ruleengine_server.registry.client.CultivationSnapshotClient;
 import site.yesaido.ruleengine_server.registry.dto.snapshot.CultivationSensorResponse;
 import site.yesaido.ruleengine_server.registry.dto.snapshot.CultivationSensorTypeResponse;
@@ -15,8 +16,10 @@ import site.yesaido.ruleengine_server.registry.exception.RegistrySnapshotSynchro
 import site.yesaido.ruleengine_server.registry.repository.SensorInfoRepository;
 import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -44,12 +47,18 @@ public class RegistrySnapshotSynchronizationService {
                         "Cultivation Service의 snapshot 응답이 올바르지 않습니다.");
             }
 
-            int sensorCount = synchronizeSensors(snapshot.sensors());
-            int thresholdCount = synchronizeThresholds(snapshot.thresholds());
+            Set<String> managedSensorTypes = new HashSet<>();
+
+            int sensorCount = synchronizeSensors(snapshot.sensors(), managedSensorTypes);
+            int thresholdCount = synchronizeThresholds(snapshot.thresholds(), managedSensorTypes);
+
+            if (!managedSensorTypes.isEmpty()) {
+                managedSensorTypeService.registerAll(List.copyOf(managedSensorTypes));
+            }
 
             log.info("Cultivation Service snapshot으로 초기 동기화를 완료했습니다. "
-                            + "snapshotAt={}, sensorChannelCount={}, thresholdCultivationCount={}",
-                    snapshot.snapshotAt(), sensorCount, thresholdCount);
+                            + "snapshotAt={}, sensorChannelCount={}, thresholdCultivationCount={}, managedSensorTypeCount={}",
+                    snapshot.snapshotAt(), sensorCount, thresholdCount, managedSensorTypes.size());
         } catch (RegistrySnapshotSynchronizationException exception) {
             throw exception;
         } catch (RuntimeException exception) {
@@ -58,7 +67,7 @@ public class RegistrySnapshotSynchronizationService {
         }
     }
 
-    private int synchronizeSensors(List<CultivationSensorResponse> sensors) {
+    private int synchronizeSensors(List<CultivationSensorResponse> sensors, Set<String> managedSensorTypes) {
         if (sensors == null) {
             return 0;
         }
@@ -80,13 +89,14 @@ public class RegistrySnapshotSynchronizationService {
                         sensorType.unit()
                 );
                 sensorInfoRepository.upsert(dto);
+                managedSensorTypes.add(SensorTypeUtils.normalize(sensorType.sensorType()));
                 count++;
             }
         }
         return count;
     }
 
-    private int synchronizeThresholds(List<CultivationThresholdResponse> thresholds) {
+    private int synchronizeThresholds(List<CultivationThresholdResponse> thresholds, Set<String> managedSensorTypes) {
         if (thresholds == null) {
             return 0;
         }
@@ -102,9 +112,7 @@ public class RegistrySnapshotSynchronizationService {
             ThresholdInfoDto dto = ThresholdInfoDto.from(entry.getKey(), ranges);
             thresholdInfoRepository.upsert(dto);
 
-            managedSensorTypeService.registerAll(
-                    ranges.stream().map(SensorRange::getSensorType).toList()
-            );
+            ranges.forEach(range -> managedSensorTypes.add(range.getSensorType()));
         }
 
         return byCultivationId.size();

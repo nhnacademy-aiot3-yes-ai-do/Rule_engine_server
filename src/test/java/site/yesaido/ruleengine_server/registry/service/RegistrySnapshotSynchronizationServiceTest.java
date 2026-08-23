@@ -21,6 +21,7 @@ import site.yesaido.ruleengine_server.registry.repository.ThresholdInfoRepositor
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -91,8 +92,13 @@ class RegistrySnapshotSynchronizationServiceTest {
         assertTrue(capturedThresholds.stream().anyMatch(dto -> dto.getCultivationId().equals(2L)
                 && dto.getRange("CO2", "ppm") != null));
 
-        // 재배당 1번씩 registerAll 호출 (cultivationId 1, 2)
-        verify(managedSensorTypeService, times(2)).registerAll(anyList());
+        // sensors/thresholds 전체를 합쳐 딱 한 번만 registerAll 호출
+        ArgumentCaptor<List<String>> sensorTypeCaptor = ArgumentCaptor.forClass(List.class);
+        verify(managedSensorTypeService, times(1)).registerAll(sensorTypeCaptor.capture());
+        assertEquals(
+                Set.of("TEMPERATURE", "HUMIDITY", "CO2"),
+                Set.copyOf(sensorTypeCaptor.getValue())
+        );
     }
 
     @Test
@@ -165,5 +171,27 @@ class RegistrySnapshotSynchronizationServiceTest {
         assertDoesNotThrow(() -> registrySnapshotSynchronizationService.synchronizeAll());
 
         verify(sensorInfoRepository, never()).upsert(any());
+    }
+
+    @Test
+    @DisplayName("thresholds가 비어 있어도 sensors에만 존재하는 타입을 관리 대상으로 등록한다")
+    void test_synchronizeAll_sensorOnlyType_stillRegisteredAsManaged() {
+        CultivationSensorResponse sensorWithVpd = new CultivationSensorResponse(
+                1L, "device-eui-1", "device-name-1", "장소", "위치상세", "model-1",
+                List.of(new CultivationSensorTypeResponse("VPD", "kPa"))
+        );
+
+        CultivationSnapshotResponse snapshot = new CultivationSnapshotResponse(
+                OffsetDateTime.now(), List.of(sensorWithVpd), List.of());
+        when(cultivationSnapshotClient.getSnapshot()).thenReturn(snapshot);
+
+        assertDoesNotThrow(() -> registrySnapshotSynchronizationService.synchronizeAll());
+
+        verify(sensorInfoRepository, times(1)).upsert(any(SensorInfoDto.class));
+        verify(thresholdInfoRepository, never()).upsert(any());
+
+        ArgumentCaptor<List<String>> sensorTypeCaptor = ArgumentCaptor.forClass(List.class);
+        verify(managedSensorTypeService, times(1)).registerAll(sensorTypeCaptor.capture());
+        assertEquals(List.of("VPD"), sensorTypeCaptor.getValue());
     }
 }
