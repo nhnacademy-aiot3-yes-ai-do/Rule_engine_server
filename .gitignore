@@ -36,3 +36,6 @@ build/
 .env.dev
 
 **/application-dev.yml
+
+error.txt
+error_log.txt

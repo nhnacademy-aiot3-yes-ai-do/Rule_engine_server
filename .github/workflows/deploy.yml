@@ -60,6 +60,36 @@ jobs:
         ports:
           - 1883:1883
 
+      rabbitmq:
+        image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      influxdb:
+        image: influxdb:2.7
+        env:
+          DOCKER_INFLUXDB_INIT_MODE: setup
+          DOCKER_INFLUXDB_INIT_USERNAME: test
+          DOCKER_INFLUXDB_INIT_PASSWORD: test1234
+          DOCKER_INFLUXDB_INIT_ORG: yes-nhn
+          DOCKER_INFLUXDB_INIT_BUCKET: sensor-data
+          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ci-test-token
+        ports:
+          - 8086:8086
+        options: >-
+          --health-cmd "curl --fail http://localhost:8086/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+
     steps:
       - uses: actions/checkout@v4
         with:
