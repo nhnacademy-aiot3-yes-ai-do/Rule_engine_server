@@ -29,9 +29,8 @@ public class InfluxService {
                     "[InfluxDB] write failed: cultivationId={}, deviceEui={}, sensorType={}, timestamp={}",
                     event.cultivationId(), event.deviceEui(), event.sensorType(), event.time(), e
             );
-            return;
         }
-        log.debug("[InfluxDB] 데이터 적재됨: {}", event);
+
     }
 
 }
