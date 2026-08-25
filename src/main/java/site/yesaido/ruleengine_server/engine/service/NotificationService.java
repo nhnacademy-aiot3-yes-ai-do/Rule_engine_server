@@ -52,7 +52,8 @@ public class NotificationService {
 
     public void sendActuatorCommandResult(ActuatorControlKey key, String actuatorType, ActuatorState desiredState, ActuatorCommandStatus status) {
 
-        // TODO : NotificationService로의 액추에이터 제어 명령에 대한 RabbitMQ 발행
+        log.debug("[NotificationService] key={}, actuatorType={}, actuatorState={}, actuatorCommandStaus={}", key, actuatorType, desiredState.name(), status.name());
+        // 다음 해야할 일 : NotificationService로의 액추에이터 제어 명령에 대한 RabbitMQ 발행
     }
 
     private void publish(SensorDataDto sensorData, ThresholdStatus status) {

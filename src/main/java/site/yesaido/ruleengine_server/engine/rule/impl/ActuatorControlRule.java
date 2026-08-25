@@ -63,7 +63,7 @@ public class ActuatorControlRule implements Rule {
 
         if (targetDirection == ActuatorDirection.NONE) {
             actuatorCommandExecutor.requestDirectionChange(key, currentState.getActuatorDirection(), targetDirection);
-//            return;
+
         } else {
             boolean isDirectionSwitch = currentState.getActuatorDirection() != ActuatorDirection.NONE;
 
