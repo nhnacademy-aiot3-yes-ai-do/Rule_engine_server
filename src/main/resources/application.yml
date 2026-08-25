@@ -62,7 +62,7 @@ feign:
         cultivation-server:
             url: ${CULTIVATION_SERVER_URL}
         data-generator-server:
-            url: ${DATA_GENERATOR_SERVER_URL}
+            url: ${DATA_GENERATOR_URL}
 
 logging:
     level:
