@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
 import site.yesaido.ruleengine_server.engine.dto.ThresholdStatus;
 import site.yesaido.ruleengine_server.engine.dto.ThresholdStatusChangedEvent;
+import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorCommandStatus;
+import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorControlKey;
+import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorState;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -45,6 +48,11 @@ public class NotificationService {
 
     public void sendThresholdRecoveredAlert(SensorDataDto sensorData) {
         publish(sensorData, ThresholdStatus.RECOVERED);
+    }
+
+    public void sendActuatorCommandResult(ActuatorControlKey key, String actuatorType, ActuatorState desiredState, ActuatorCommandStatus status) {
+
+        // TODO : NotificationService로의 액추에이터 제어 명령에 대한 RabbitMQ 발행
     }
 
     private void publish(SensorDataDto sensorData, ThresholdStatus status) {
