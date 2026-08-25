@@ -55,4 +55,18 @@ public enum SensorType {
         }
         throw new IllegalArgumentException("Unknown SensorType: " + value);
     }
+
+    public static boolean contains(String value) {
+
+        if (value == null) {
+            return false;
+        }
+
+        for (SensorType sensorType : SensorType.values()) {
+            if (sensorType.name().equalsIgnoreCase(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
