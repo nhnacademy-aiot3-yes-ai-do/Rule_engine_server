@@ -10,7 +10,7 @@ import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorCommandRespons
 @FeignClient(name = "data-generator-server", url = "${feign.client.data-generator-server.url}")
 public interface DataGeneratorFeignClient {
 
-    @PutMapping("/api/internal/cultivations/{cultivationId}/actuators/{actuatorType}/state")
+    @PutMapping("/api/v1/internal/cultivations/{cultivationId}/actuators/{actuatorType}/state")
     ActuatorCommandResponse controlActuator(@PathVariable Long cultivationId,
                                             @PathVariable String actuatorType,
                                             @RequestBody ActuatorCommandRequest request);
