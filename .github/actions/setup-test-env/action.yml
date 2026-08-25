@@ -29,3 +29,4 @@ runs:
         echo "CF_ACCESS_CLIENT_SECRET=" >> "$GITHUB_ENV"
         
         echo "CULTIVATION_SERVER_URL=http://localhost:9001" >> "$GITHUB_ENV"
+        echo "DATA_GENERATOR_SERVER_URL=http://localhost:9002" >> "$GITHUB_ENV"

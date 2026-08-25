@@ -52,12 +52,17 @@ influx:
 rule-engine:
     alert:
         cooldown:
-            minutes: 10
+            minutes: 5
+    actuator:
+        sustain:
+            minutes: 1
 
 feign:
-  client:
-    cultivation-server:
-      url: ${CULTIVATION_SERVER_URL}
+    client:
+        cultivation-server:
+            url: ${CULTIVATION_SERVER_URL}
+        data-generator-server:
+            url: ${DATA_GENERATOR_SERVER_URL}
 
 logging:
     level:
