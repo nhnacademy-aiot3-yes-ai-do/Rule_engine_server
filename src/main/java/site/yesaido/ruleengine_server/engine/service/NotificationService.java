@@ -6,12 +6,14 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.collector.dto.SensorDataDto;
+import site.yesaido.ruleengine_server.engine.dto.AutomationStateChangedEvent;
 import site.yesaido.ruleengine_server.engine.dto.ThresholdStatus;
 import site.yesaido.ruleengine_server.engine.dto.ThresholdStatusChangedEvent;
+import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorCommandResponse;
 import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorCommandStatus;
-import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorControlKey;
 import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorState;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -21,16 +23,19 @@ import java.util.UUID;
 public class NotificationService {
 
     private final String exchange;
-    private final String routingKey;
+    private final String thresholdRoutingKey;
+    private final String actionRoutingKey;
 
     private final RabbitTemplate rabbitTemplate;
 
     public NotificationService(RabbitTemplate rabbitTemplate,
                                @Value("${custom-rabbitmq.exchange.to-notification}") String exchange,
-                               @Value("${custom-rabbitmq.queue.notification-threshold}") String routingKey) {
+                               @Value("${custom-rabbitmq.queue.notification-threshold}") String thresholdRoutingKey,
+                               @Value("${custom-rabbitmq.queue.notification-action}") String actionRoutingKey) {
         this.rabbitTemplate = rabbitTemplate;
         this.exchange = exchange;
-        this.routingKey = routingKey;
+        this.thresholdRoutingKey = thresholdRoutingKey;
+        this.actionRoutingKey = actionRoutingKey;
     }
 
     @PostConstruct
@@ -43,20 +48,29 @@ public class NotificationService {
     }
 
     public void sendThresholdExceededAlert(SensorDataDto sensorData) {
-        publish(sensorData, ThresholdStatus.EXCEEDED);
+        publishThresholdAlert(sensorData, ThresholdStatus.EXCEEDED);
     }
 
     public void sendThresholdRecoveredAlert(SensorDataDto sensorData) {
-        publish(sensorData, ThresholdStatus.RECOVERED);
+        publishThresholdAlert(sensorData, ThresholdStatus.RECOVERED);
     }
 
-    public void sendActuatorCommandResult(ActuatorControlKey key, String actuatorType, ActuatorState desiredState, ActuatorCommandStatus status) {
+    public void sendActuatorCommandResult(long cultivationId, String actuatorType, ActuatorCommandResponse response, Instant requestedAt) {
 
-        log.debug("[NotificationService] key={}, actuatorType={}, actuatorState={}, actuatorCommandStaus={}", key, actuatorType, desiredState.name(), status.name());
-        // 다음 해야할 일 : NotificationService로의 액추에이터 제어 명령에 대한 RabbitMQ 발행
+        AutomationStateChangedEvent event = new AutomationStateChangedEvent(
+                response.controlId(),
+                cultivationId,
+                actuatorType,
+                response.status().getMessage(),
+                response.status() == ActuatorCommandStatus.APPLIED,
+                requestedAt.atOffset(ZoneOffset.ofHours(9))
+        );
+
+        publishActionAlert(event);
     }
 
-    private void publish(SensorDataDto sensorData, ThresholdStatus status) {
+    private void publishThresholdAlert(SensorDataDto sensorData, ThresholdStatus status) {
+
         ThresholdStatusChangedEvent event = new ThresholdStatusChangedEvent(
                 UUID.randomUUID(),
                 sensorData,
@@ -64,10 +78,16 @@ public class NotificationService {
                 OffsetDateTime.now(ZoneOffset.UTC).withOffsetSameInstant(ZoneOffset.ofHours(9))
         );
 
-        log.debug("알림 발행 테스트: {}", event);
-        rabbitTemplate.convertAndSend(exchange, routingKey, event);
-        log.debug("[NotificationService] 알림 이벤트 발행: status={}, deviceEui={}, sensorType={}",
+        rabbitTemplate.convertAndSend(exchange, thresholdRoutingKey, event);
+        log.debug("[NotificationService] 임계값 알림 발행: status={}, deviceEui={}, sensorType={}",
                 status, sensorData.getDeviceEui(), sensorData.getSensorType());
+    }
+
+    private void publishActionAlert(AutomationStateChangedEvent event) {
+
+        rabbitTemplate.convertAndSend(exchange, actionRoutingKey, event);
+        log.debug("[NotificationService] 액추에이터 알림 발행: cultivationId={}, actuatorType={}",
+                event.getCultivationId(), event.getActuatorType());
     }
 
 }
