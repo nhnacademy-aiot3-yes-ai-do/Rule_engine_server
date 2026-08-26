@@ -93,9 +93,7 @@ public class ActuatorCommandExecutor {
             log.warn("[ActuatorCommandExecutor] 명령 거부됨: key={}, actuatorType={}, status={}", key, actuatorType, response.status());
         }
 
-        notificationService.sendActuatorCommandResult(key, actuatorType, desiredState, response.status());
-
-        log.debug("제어 명령 성공?: {}", response);
+        notificationService.sendActuatorCommandResult(key.getCultivationId(), actuatorType, response, requestedAt);
 
         return applied;
     }

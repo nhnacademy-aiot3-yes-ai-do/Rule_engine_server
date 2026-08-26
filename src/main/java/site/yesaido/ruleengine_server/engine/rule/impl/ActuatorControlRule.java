@@ -51,6 +51,7 @@ public class ActuatorControlRule implements Rule {
         ActuatorControlKey key = new ActuatorControlKey(thresholdInfo.getCultivationId(), sensorData.getSensorType());
         ActuatorControlState currentState = actuatorControlStateService.getState(key);
 
+        // cultivationId + sensorType으로 actuator동작 명령 상태를 조회했는데, PENDING일 경우 즉시 return
         if (currentState.getActuatorDirection() == ActuatorDirection.PENDING) {
             return;
         }
