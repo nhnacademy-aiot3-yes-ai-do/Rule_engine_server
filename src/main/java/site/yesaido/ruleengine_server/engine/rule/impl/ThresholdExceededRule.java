@@ -45,19 +45,15 @@ public class ThresholdExceededRule implements Rule {
         );
 
         if (exceeded) {
-            if (alertCooldownService.canAlert(sensorKey)) {
+            if (alertCooldownService.tryMarkExceeded(sensorKey)) {
                 notificationService.sendThresholdExceededAlert(sensorData); // 초과 알림
-                alertCooldownService.recordAlert(sensorKey);
             }
-
-            alertCooldownService.markExceeded(sensorKey);
 
             return;
         }
 
-        if(alertCooldownService.isCurrentlyExceeded(sensorKey)) {
+        if(alertCooldownService.tryMarkNormal(sensorKey)) {
             notificationService.sendThresholdRecoveredAlert(sensorData); // 복귀 알림
-            alertCooldownService.markNormal(sensorKey);
         }
     }
 }

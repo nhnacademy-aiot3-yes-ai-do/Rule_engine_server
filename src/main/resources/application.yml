@@ -54,6 +54,8 @@ rule-engine:
     alert:
         cooldown:
             minutes: 5
+        state:
+            ttl-hours: 24
     actuator:
         sustain:
             minutes: 1

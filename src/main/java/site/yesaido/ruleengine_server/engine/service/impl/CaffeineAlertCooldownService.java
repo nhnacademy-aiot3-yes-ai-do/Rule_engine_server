@@ -8,44 +8,39 @@ import site.yesaido.ruleengine_server.engine.dto.SensorKey;
 import site.yesaido.ruleengine_server.engine.service.AlertCooldownService;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class CaffeineAlertCooldownService implements AlertCooldownService {
 
     private final Cache<SensorKey, Boolean> cache;
-    private final Map<SensorKey, Boolean> stateMap = new ConcurrentHashMap<>();
+    private final Cache<SensorKey, Boolean> stateMap;
 
-    public CaffeineAlertCooldownService(@Value("${rule-engine.alert.cooldown.minutes}") long alertCooldown) {
+    public CaffeineAlertCooldownService(@Value("${rule-engine.alert.cooldown.minutes}") long alertCooldown,
+                                        @Value("${rule-engine.alert.state.ttl-hours}") long stateTtlHours) {
         this.cache = Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofMinutes(alertCooldown))
+                .build();
+        this.stateMap = Caffeine.newBuilder()
+                .expireAfterWrite(Duration.ofHours(stateTtlHours))
                 .build();
     }
 
     @Override
-    public boolean canAlert(SensorKey sensorKey) {
-        return cache.getIfPresent(sensorKey) == null;
-    }
+    public boolean tryMarkExceeded(SensorKey sensorKey) {
 
-    @Override
-    public void recordAlert(SensorKey sensorKey) {
-        cache.put(sensorKey, true);
-    }
-
-    @Override
-    public boolean isCurrentlyExceeded(SensorKey sensorKey) {
-        return Boolean.TRUE.equals(stateMap.get(sensorKey));
-    }
-
-    @Override
-    public void markExceeded(SensorKey sensorKey) {
         stateMap.put(sensorKey, true);
+
+        return cache.asMap().putIfAbsent(sensorKey, true) == null;
     }
 
     @Override
-    public void markNormal(SensorKey sensorKey) {
-        stateMap.remove(sensorKey);
-    }
+    public boolean tryMarkNormal(SensorKey sensorKey) {
 
+        Boolean wasExceeded = stateMap.asMap().remove(sensorKey);
+        if(Boolean.TRUE.equals(wasExceeded)) {
+            cache.invalidate(sensorKey);
+            return true;
+        }
+        return false;
+    }
 }
