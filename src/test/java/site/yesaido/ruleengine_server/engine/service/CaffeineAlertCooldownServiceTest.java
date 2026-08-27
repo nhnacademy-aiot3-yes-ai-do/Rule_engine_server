@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CaffeineAlertCooldownServiceTest {
 
+    private static final long DEFAULT_STATE_TTL_HOURS = 24;
+
     private SensorKey sensorKey;
 
     @BeforeEach
@@ -21,72 +23,80 @@ class CaffeineAlertCooldownServiceTest {
     }
 
     @Test
-    void test_canAlert_whenNeverRecorded_returnsTrue() {
-        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10);
+    void test_tryMarkExceeded_whenFirstTime_returnsTrue() {
+        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10, DEFAULT_STATE_TTL_HOURS);
 
-        assertTrue(service.canAlert(sensorKey));
+        assertTrue(service.tryMarkExceeded(sensorKey));
     }
 
     @Test
-    void test_canAlert_afterRecordAlert_returnsFalse() {
-        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10);
+    void test_tryMarkExceeded_whenAlreadyInCooldown_returnsFalse() {
+        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10, DEFAULT_STATE_TTL_HOURS);
 
-        service.recordAlert(sensorKey);
+        service.tryMarkExceeded(sensorKey);
 
-        assertFalse(service.canAlert(sensorKey));
+        assertFalse(service.tryMarkExceeded(sensorKey));
     }
 
     @Test
-    void test_canAlert_afterCooldownExpires_returnsTrue() {
+    void test_tryMarkExceeded_afterCooldownExpires_returnsTrueAgain() {
         // 쿨다운 0분으로 설정 시 Caffeine이 즉시(또는 매우 짧게) 만료시키는지 확인
-        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(0);
+        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(0, DEFAULT_STATE_TTL_HOURS);
 
-        service.recordAlert(sensorKey);
-
-        Awaitility.await()
-                .atMost(Duration.ofSeconds(2))
-                .untilAsserted(() -> assertTrue(service.canAlert(sensorKey)));
-    }
-
-    @Test
-    void test_isCurrentlyExceeded_whenNeverMarked_returnsFalse() {
-        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10);
-
-        assertFalse(service.isCurrentlyExceeded(sensorKey));
-    }
-
-    @Test
-    void test_isCurrentlyExceeded_afterMarkExceeded_returnsTrue() {
-        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10);
-
-        service.markExceeded(sensorKey);
-
-        assertTrue(service.isCurrentlyExceeded(sensorKey));
-    }
-
-    @Test
-    void test_isCurrentlyExceeded_afterMarkNormal_returnsFalse() {
-        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10);
-
-        service.markExceeded(sensorKey);
-        service.markNormal(sensorKey);
-
-        assertFalse(service.isCurrentlyExceeded(sensorKey));
-    }
-
-    @Test
-    void test_stateMap_survivesRegardlessOfCooldownExpiry() {
-        // 핵심 회귀 테스트: 쿨다운(cache)이 만료돼도 상태(stateMap)는 별개로 유지되는지 검증
-        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(0);
-
-        service.recordAlert(sensorKey);
-        service.markExceeded(sensorKey);
+        service.tryMarkExceeded(sensorKey);
 
         Awaitility.await()
                 .atMost(Duration.ofSeconds(2))
-                .untilAsserted(() -> assertTrue(service.canAlert(sensorKey)));
+                .untilAsserted(() -> assertTrue(service.tryMarkExceeded(sensorKey)));
+    }
 
-        // 쿨다운은 만료됐지만, 상태는 여전히 "초과 중"으로 유지되어야 함
-        assertTrue(service.isCurrentlyExceeded(sensorKey));
+    @Test
+    void test_tryMarkNormal_whenNeverExceeded_returnsFalse() {
+        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10, DEFAULT_STATE_TTL_HOURS);
+
+        assertFalse(service.tryMarkNormal(sensorKey));
+    }
+
+    @Test
+    void test_tryMarkNormal_afterExceeded_returnsTrue() {
+        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10, DEFAULT_STATE_TTL_HOURS);
+
+        service.tryMarkExceeded(sensorKey);
+
+        assertTrue(service.tryMarkNormal(sensorKey));
+    }
+
+    @Test
+    void test_tryMarkNormal_whenCalledTwice_secondCallReturnsFalse() {
+        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10, DEFAULT_STATE_TTL_HOURS);
+
+        service.tryMarkExceeded(sensorKey);
+        service.tryMarkNormal(sensorKey);
+
+        assertFalse(service.tryMarkNormal(sensorKey));
+    }
+
+    @Test
+    void test_tryMarkNormal_resetsCooldown_allowingImmediateReExceed() {
+        // 핵심 회귀 테스트: 복귀 시 쿨다운이 리셋되어, 쿨다운 시간이 안 지났어도 재초과 시 알림이 나가야 함
+        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10, DEFAULT_STATE_TTL_HOURS);
+
+        service.tryMarkExceeded(sensorKey);   // [00:00] 초과 -> true
+        service.tryMarkNormal(sensorKey);     // [01:00] 복귀 -> true, 쿨다운 리셋
+
+        // [01:30] 재초과 - 10분 쿨다운이 안 지났어도 리셋됐으니 true여야 함
+        assertTrue(service.tryMarkExceeded(sensorKey));
+    }
+
+    @Test
+    void test_tryMarkExceeded_afterStateTtlExpires_treatsAsNewOccurrence() {
+        // state TTL이 지나면 오래 방치된 초과 상태가 정리되어, 다음 tryMarkExceeded가 새로운 발생으로 취급되는지 검증
+        CaffeineAlertCooldownService service = new CaffeineAlertCooldownService(10, 0);
+
+        service.tryMarkExceeded(sensorKey);
+
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(2))
+                .untilAsserted(() -> assertFalse(service.tryMarkNormal(sensorKey)));
     }
 }

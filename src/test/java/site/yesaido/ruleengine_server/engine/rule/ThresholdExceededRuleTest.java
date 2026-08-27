@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,69 +75,62 @@ class ThresholdExceededRuleTest {
     }
 
     @Test
-    void test_evaluate_whenExceededAndCanAlert_sendsExceededAlertAndRecordsAndMarks() {
+    void test_evaluate_whenExceededAndTryMarkExceededReturnsTrue_sendsExceededAlert() {
         SensorDataDto exceededData = withValue(BigDecimal.valueOf(35.0));
         when(thresholdInfo.getRange(exceededData.getSensorType(), exceededData.getUnit())).thenReturn(sensorRange);
-        when(alertCooldownService.canAlert(sensorKey)).thenReturn(true);
+        when(alertCooldownService.tryMarkExceeded(sensorKey)).thenReturn(true);
 
         rule.evaluate(exceededData, thresholdInfo);
 
         verify(notificationService, times(1)).sendThresholdExceededAlert(exceededData);
-        verify(alertCooldownService, times(1)).recordAlert(sensorKey);
-        verify(alertCooldownService, times(1)).markExceeded(sensorKey);
         verify(notificationService, never()).sendThresholdRecoveredAlert(any());
     }
 
     @Test
-    void test_evaluate_whenExceededButCannotAlert_onlyMarksExceeded() {
+    void test_evaluate_whenExceededAndTryMarkExceededReturnsFalse_doesNotSendAlert() {
         SensorDataDto exceededData = withValue(BigDecimal.valueOf(35.0));
         when(thresholdInfo.getRange(exceededData.getSensorType(), exceededData.getUnit())).thenReturn(sensorRange);
-        when(alertCooldownService.canAlert(sensorKey)).thenReturn(false);
+        when(alertCooldownService.tryMarkExceeded(sensorKey)).thenReturn(false);
 
         rule.evaluate(exceededData, thresholdInfo);
 
         verify(notificationService, never()).sendThresholdExceededAlert(any());
-        verify(alertCooldownService, never()).recordAlert(any());
-        verify(alertCooldownService, times(1)).markExceeded(sensorKey);
     }
 
     @Test
     void test_evaluate_whenBelowMin_isTreatedAsExceeded() {
         SensorDataDto belowMinData = withValue(BigDecimal.valueOf(10.0));
         when(thresholdInfo.getRange(belowMinData.getSensorType(), belowMinData.getUnit())).thenReturn(sensorRange);
-        when(alertCooldownService.canAlert(sensorKey)).thenReturn(true);
+        when(alertCooldownService.tryMarkExceeded(sensorKey)).thenReturn(true);
 
         rule.evaluate(belowMinData, thresholdInfo);
 
         verify(notificationService, times(1)).sendThresholdExceededAlert(belowMinData);
-        verify(alertCooldownService, times(1)).markExceeded(sensorKey);
+        verify(alertCooldownService, never()).tryMarkNormal(any());
     }
 
     @Test
-    void test_evaluate_whenNormalAndCurrentlyExceeded_sendsRecoveredAlertAndMarksNormal() {
+    void test_evaluate_whenNormalAndTryMarkNormalReturnsTrue_sendsRecoveredAlert() {
         SensorDataDto normalData = withValue(BigDecimal.valueOf(25.0));
         when(thresholdInfo.getRange(normalData.getSensorType(), normalData.getUnit())).thenReturn(sensorRange);
-        when(alertCooldownService.isCurrentlyExceeded(sensorKey)).thenReturn(true);
+        when(alertCooldownService.tryMarkNormal(sensorKey)).thenReturn(true);
 
         rule.evaluate(normalData, thresholdInfo);
 
         verify(notificationService, times(1)).sendThresholdRecoveredAlert(normalData);
-        verify(alertCooldownService, times(1)).markNormal(sensorKey);
         verify(notificationService, never()).sendThresholdExceededAlert(any());
-        verify(alertCooldownService, never()).recordAlert(any());
-        verify(alertCooldownService, never()).markExceeded(any());
+        verify(alertCooldownService, never()).tryMarkExceeded(any());
     }
 
     @Test
-    void test_evaluate_whenNormalAndNotCurrentlyExceeded_doesNothing() {
+    void test_evaluate_whenNormalAndTryMarkNormalReturnsFalse_doesNothing() {
         SensorDataDto normalData = withValue(BigDecimal.valueOf(25.0));
         when(thresholdInfo.getRange(normalData.getSensorType(), normalData.getUnit())).thenReturn(sensorRange);
-        when(alertCooldownService.isCurrentlyExceeded(sensorKey)).thenReturn(false);
+        when(alertCooldownService.tryMarkNormal(sensorKey)).thenReturn(false);
 
         rule.evaluate(normalData, thresholdInfo);
 
         verify(notificationService, never()).sendThresholdRecoveredAlert(any());
-        verify(alertCooldownService, never()).markNormal(any());
     }
 
     // ======================================================================
