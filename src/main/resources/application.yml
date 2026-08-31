@@ -59,6 +59,8 @@ rule-engine:
     actuator:
         sustain:
             minutes: 1
+        sensor-value:
+            stale-after-seconds: 20
 
 feign:
     client:

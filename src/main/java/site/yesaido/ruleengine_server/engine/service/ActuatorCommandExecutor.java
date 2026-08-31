@@ -1,11 +1,12 @@
 package site.yesaido.ruleengine_server.engine.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import site.yesaido.ruleengine_server.engine.client.DataGeneratorFeignClient;
 import site.yesaido.ruleengine_server.engine.dto.actuator.*;
-import site.yesaido.ruleengine_server.engine.support.ActuatorTypeResolver;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -18,59 +19,13 @@ public class ActuatorCommandExecutor {
 
     private static final Duration COMMAND_TTL = Duration.ofSeconds(30);
 
-    private final ActuatorControlStateService actuatorControlStateService;
     private final DataGeneratorFeignClient dataGeneratorFeignClient;
     private final NotificationService notificationService;
+    private final ObjectMapper objectMapper;
 
-    public void requestDirectionChange(ActuatorControlKey key, ActuatorDirection currentDirection, ActuatorDirection targetDirection) {
-
-        actuatorControlStateService.updateDirection(key, ActuatorDirection.PENDING);
+    public ActuatorCommandResult sendCommand(ActuatorControlKey key, ActuatorType actuatorType, ActuatorState desiredState) {
 
         UUID controlId = UUID.randomUUID();
-
-        try {
-
-            if (targetDirection == ActuatorDirection.NONE) {
-                boolean offSucceeded = sendCommand(key, controlId, currentDirection, ActuatorState.OFF);
-                if (!offSucceeded) {
-                    rollback(key, currentDirection);
-                    return;
-                }
-
-                actuatorControlStateService.updateDirection(key, ActuatorDirection.NONE);
-                actuatorControlStateService.clearExceededSince(key);
-                return;
-            }
-
-            // 반대 방향 전환
-            if (currentDirection != ActuatorDirection.NONE && currentDirection != targetDirection) {
-                boolean offSucceeded = sendCommand(key, controlId, currentDirection, ActuatorState.OFF);
-                if (!offSucceeded) {
-                    rollback(key, currentDirection);
-                    return;
-                }
-            }
-
-            boolean onSucceeded = sendCommand(key, controlId, targetDirection, ActuatorState.ON);
-            if (!onSucceeded) {
-                rollback(key, currentDirection);
-                return;
-            }
-
-            actuatorControlStateService.updateDirection(key, targetDirection);
-            actuatorControlStateService.clearExceededSince(key);
-        } catch (Exception e) {
-            log.error("[ActuatorCommandExecutor] 액추에이터 제어 중 오류: key={}", key, e);
-            rollback(key, currentDirection);
-        }
-    }
-
-    // ======================================================================
-
-    private boolean sendCommand(ActuatorControlKey key, UUID controlId, ActuatorDirection direction, ActuatorState desiredState) {
-
-        String actuatorType = ActuatorTypeResolver.resolve(key.getSensorType(), direction);
-
         Instant requestedAt = Instant.now();
         ActuatorCommandRequest request = new ActuatorCommandRequest(
                 controlId,
@@ -82,24 +37,37 @@ public class ActuatorCommandExecutor {
 
         ActuatorCommandResponse response;
         try {
-            response = dataGeneratorFeignClient.controlActuator(key.getCultivationId(), actuatorType, request);
+            response = dataGeneratorFeignClient.controlActuator(key.getCultivationId(), actuatorType.name(), request);
+        } catch (FeignException e) {
+            return handleRejection(key, actuatorType, desiredState, requestedAt, e);
         } catch (Exception e) {
             log.warn("[ActuatorCommandExecutor] Feign 호출 실패: key={}, actuatorType={}, desiredState={}", key, actuatorType, desiredState, e);
-            return false;
+            return ActuatorCommandResult.FAILED;
         }
 
-        boolean applied = response.status() == ActuatorCommandStatus.APPLIED;
-        if(!applied) {
-            log.warn("[ActuatorCommandExecutor] 명령 거부됨: key={}, actuatorType={}, status={}", key, actuatorType, response.status());
-        }
+        notificationService.sendActuatorCommandResult(key.getCultivationId(), actuatorType.name(), response, requestedAt);
 
-        notificationService.sendActuatorCommandResult(key.getCultivationId(), actuatorType, response, requestedAt);
-
-        return applied;
+        return ActuatorCommandResult.APPLIED;
     }
 
-    private void rollback(ActuatorControlKey key, ActuatorDirection previousDirection) {
+    // ======================================================================
 
-        actuatorControlStateService.updateDirection(key, previousDirection);
+    private ActuatorCommandResult handleRejection(ActuatorControlKey key, ActuatorType actuatorType, ActuatorState desiredState,
+                                                   Instant requestedAt, FeignException e) {
+
+        ActuatorCommandResponse rejected;
+        try {
+            rejected = objectMapper.readValue(e.contentUTF8(), ActuatorCommandResponse.class);
+        } catch (Exception parseException) {
+            log.warn("[ActuatorCommandExecutor] Feign 호출 실패: key={}, actuatorType={}, desiredState={}", key, actuatorType, desiredState, e);
+            return ActuatorCommandResult.FAILED;
+        }
+
+        log.warn("[ActuatorCommandExecutor] 명령 거부됨: key={}, actuatorType={}, status={}", key, actuatorType, rejected.status());
+        notificationService.sendActuatorCommandResult(key.getCultivationId(), actuatorType.name(), rejected, requestedAt);
+
+        return rejected.status() == ActuatorCommandStatus.REJECTED_CONFLICT
+                ? ActuatorCommandResult.REJECTED_CONFLICT
+                : ActuatorCommandResult.FAILED;
     }
 }

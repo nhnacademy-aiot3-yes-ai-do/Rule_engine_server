@@ -61,6 +61,14 @@ public class ThresholdInfoDto {
         );
     }
 
+    public SensorRange findRangeBySensorType(String sensorType) {
+
+        return ranges.values().stream()
+                .filter(range -> range.getSensorType().equals(sensorType))
+                .findFirst()
+                .orElse(null);
+    }
+
     /**
      * 특정 키(예: "{sensorType}_{unit}")에 해당하는 임계값 범위를 조회합니다.
      *
