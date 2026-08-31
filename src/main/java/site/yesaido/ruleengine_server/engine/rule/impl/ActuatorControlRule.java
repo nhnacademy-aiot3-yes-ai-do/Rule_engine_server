@@ -94,12 +94,12 @@ public class ActuatorControlRule implements Rule {
                 return;
             }
 
-            if (currentState instanceof ActuatorControlState.Active active) {
-                if (target != null && active.actuatorType() == target) {
+            if (currentState instanceof ActuatorControlState.Active(ActuatorType actuatorType)) {
+                if (target != null && actuatorType == target) {
                     return;   // 3-a: 계속 같은 게 켜진 상태 유지
                 }
                 // 3-b/5순위 통합: 현재≠목표이니 즉시 정지
-                stopImmediately(key, active.actuatorType());
+                stopImmediately(key, actuatorType);
             }
         } finally {
             lock.unlock();
@@ -118,15 +118,15 @@ public class ActuatorControlRule implements Rule {
             return ActuatorType.decreasingTypeOf(range.getSensorType());
         }
 
-        if (currentState instanceof ActuatorControlState.Active active) {
+        if (currentState instanceof ActuatorControlState.Active(ActuatorType actuatorType)) {
             BigDecimal midpoint = range.getMinValue().add(range.getMaxValue())
                     .divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
 
-            if (active.actuatorType().isIncreasing() && average.compareTo(midpoint) < 0) {
-                return active.actuatorType();
+            if (actuatorType.isIncreasing() && average.compareTo(midpoint) < 0) {
+                return actuatorType;
             }
-            if (!active.actuatorType().isIncreasing() && average.compareTo(midpoint) > 0) {
-                return active.actuatorType();
+            if (!actuatorType.isIncreasing() && average.compareTo(midpoint) > 0) {
+                return actuatorType;
             }
         }
 
