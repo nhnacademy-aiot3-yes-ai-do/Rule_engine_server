@@ -129,7 +129,7 @@ class ActuatorCommandExecutorTest {
         Request request = Request.create(
                 Request.HttpMethod.PUT,
                 "/api/v1/internal/cultivations/1/actuators/HEATER/state",
-                Map.of(), null, StandardCharsets.UTF_8);
+                Map.of(), null, StandardCharsets.UTF_8, null);
 
         Response response = Response.builder()
                 .status(409)
