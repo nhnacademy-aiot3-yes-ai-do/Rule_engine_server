@@ -156,7 +156,7 @@ class ActuatorControlRuleTest {
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
         when(actuatorTargetSinceService.getTargetSince(key))
                 .thenReturn(new ActuatorTargetSinceService.TargetSince(ActuatorType.HEATER, Instant.now().minusSeconds(90)));
-        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.ON)).thenReturn(true);
+        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.ON)).thenReturn(ActuatorCommandResult.APPLIED);
 
         rule.evaluate(belowMinData, thresholdInfo);
 
@@ -172,12 +172,33 @@ class ActuatorControlRuleTest {
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
         when(actuatorTargetSinceService.getTargetSince(key))
                 .thenReturn(new ActuatorTargetSinceService.TargetSince(ActuatorType.HEATER, Instant.now().minusSeconds(90)));
-        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.ON)).thenReturn(false);
+        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.ON)).thenReturn(ActuatorCommandResult.FAILED);
 
         rule.evaluate(belowMinData, thresholdInfo);
 
         verify(actuatorControlStateService).setState(key, new ActuatorControlState.Pending());
         verify(actuatorControlStateService).setState(key, new ActuatorControlState.None());
+        verify(actuatorTargetSinceService, never()).clear(key);
+    }
+
+    @Test
+    void test_evaluate_whenStartRejectedWithConflict_correctsStateToOppositeType() {
+        // 재시작 등으로 상태를 NONE으로 잘못 알고 있었는데, 실제로는 반대쪽(COOLER)이 켜져 있던 경우
+        SensorDataDto belowMinData = withValue(sensorData, BigDecimal.valueOf(15.0));
+        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.None());
+        when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
+        when(actuatorTargetSinceService.getTargetSince(key))
+                .thenReturn(new ActuatorTargetSinceService.TargetSince(ActuatorType.HEATER, Instant.now().minusSeconds(90)));
+        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.ON))
+                .thenReturn(ActuatorCommandResult.REJECTED_CONFLICT);
+
+        rule.evaluate(belowMinData, thresholdInfo);
+
+        verify(actuatorControlStateService).setState(key, new ActuatorControlState.Pending());
+        verify(actuatorControlStateService).setState(key, new ActuatorControlState.Active(ActuatorType.COOLER));
+        verify(actuatorControlStateService, never()).setState(key, new ActuatorControlState.None());
+        // 그 자리에서 곧바로 재시도하지 않음 - 반대쪽을 끄는 요청을 보내지 않고 리턴
+        verify(actuatorCommandExecutor, times(1)).sendCommand(any(), any(), any());
         verify(actuatorTargetSinceService, never()).clear(key);
     }
 
@@ -198,7 +219,7 @@ class ActuatorControlRuleTest {
         SensorDataDto recoveredData = withValue(sensorData, BigDecimal.valueOf(27.0));
         when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(27.0));
-        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(true);
+        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(ActuatorCommandResult.APPLIED);
 
         rule.evaluate(recoveredData, thresholdInfo);
 
@@ -211,7 +232,7 @@ class ActuatorControlRuleTest {
         SensorDataDto exceedsMaxData = withValue(sensorData, BigDecimal.valueOf(35.0));
         when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(35.0));
-        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(true);
+        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(ActuatorCommandResult.APPLIED);
 
         rule.evaluate(exceedsMaxData, thresholdInfo);
 
@@ -225,7 +246,7 @@ class ActuatorControlRuleTest {
         SensorDataDto recoveredData = withValue(sensorData, BigDecimal.valueOf(27.0));
         when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(27.0));
-        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(false);
+        when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(ActuatorCommandResult.FAILED);
 
         rule.evaluate(recoveredData, thresholdInfo);
 

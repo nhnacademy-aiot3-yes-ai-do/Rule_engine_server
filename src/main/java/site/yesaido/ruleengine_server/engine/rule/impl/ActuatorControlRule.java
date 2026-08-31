@@ -137,9 +137,10 @@ public class ActuatorControlRule implements Rule {
 
         actuatorControlStateService.setState(key, new ActuatorControlState.Pending());
 
-        boolean succeeded = actuatorCommandExecutor.sendCommand(key, currentType, ActuatorState.OFF);
+        ActuatorCommandResult result = actuatorCommandExecutor.sendCommand(key, currentType, ActuatorState.OFF);
 
-        if (succeeded) {
+        // OFF 요청은 Data_generator의 반대 액추에이터 충돌 검사 대상이 아니므로 REJECTED_CONFLICT가 나올 수 없음
+        if (result == ActuatorCommandResult.APPLIED) {
             actuatorControlStateService.setState(key, new ActuatorControlState.None());
         } else {
             actuatorControlStateService.setState(key, new ActuatorControlState.Active(currentType));
@@ -162,13 +163,17 @@ public class ActuatorControlRule implements Rule {
 
         actuatorControlStateService.setState(key, new ActuatorControlState.Pending());
 
-        boolean succeeded = actuatorCommandExecutor.sendCommand(key, target, ActuatorState.ON);
+        ActuatorCommandResult result = actuatorCommandExecutor.sendCommand(key, target, ActuatorState.ON);
 
-        if (succeeded) {
-            actuatorControlStateService.setState(key, new ActuatorControlState.Active(target));
-            actuatorTargetSinceService.clear(key);
-        } else {
-            actuatorControlStateService.setState(key, new ActuatorControlState.None());
+        switch (result) {
+            case APPLIED -> {
+                actuatorControlStateService.setState(key, new ActuatorControlState.Active(target));
+                actuatorTargetSinceService.clear(key);
+            }
+            // 반대쪽이 실제로는 켜져 있다는 뜻이므로, 내 기록을 그 반대쪽으로 정정 (7번 자기치유).
+            // 여기서 곧바로 재시도하지 않고, 다음 센서 이벤트가 정상 절차(즉시 정지 -> 재시작)를 밟도록 둔다.
+            case REJECTED_CONFLICT -> actuatorControlStateService.setState(key, new ActuatorControlState.Active(target.getOppositeType()));
+            case FAILED -> actuatorControlStateService.setState(key, new ActuatorControlState.None());
         }
     }
 }

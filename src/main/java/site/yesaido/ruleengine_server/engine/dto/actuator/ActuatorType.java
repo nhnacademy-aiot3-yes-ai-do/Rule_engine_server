@@ -39,4 +39,8 @@ public enum ActuatorType {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 센서 타입: %s".formatted(sensorType)));
     }
+
+    public ActuatorType getOppositeType() {
+        return findByTargetSensorType(targetSensorType, !increasing);
+    }
 }

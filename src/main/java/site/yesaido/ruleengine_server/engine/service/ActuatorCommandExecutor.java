@@ -1,5 +1,7 @@
 package site.yesaido.ruleengine_server.engine.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,8 +21,9 @@ public class ActuatorCommandExecutor {
 
     private final DataGeneratorFeignClient dataGeneratorFeignClient;
     private final NotificationService notificationService;
+    private final ObjectMapper objectMapper;
 
-    public boolean sendCommand(ActuatorControlKey key, ActuatorType actuatorType, ActuatorState desiredState) {
+    public ActuatorCommandResult sendCommand(ActuatorControlKey key, ActuatorType actuatorType, ActuatorState desiredState) {
 
         UUID controlId = UUID.randomUUID();
         Instant requestedAt = Instant.now();
@@ -35,19 +38,36 @@ public class ActuatorCommandExecutor {
         ActuatorCommandResponse response;
         try {
             response = dataGeneratorFeignClient.controlActuator(key.getCultivationId(), actuatorType.name(), request);
+        } catch (FeignException e) {
+            return handleRejection(key, actuatorType, desiredState, requestedAt, e);
         } catch (Exception e) {
             log.warn("[ActuatorCommandExecutor] Feign 호출 실패: key={}, actuatorType={}, desiredState={}", key, actuatorType, desiredState, e);
-            return false;
-        }
-
-        boolean applied = response.status() == ActuatorCommandStatus.APPLIED;
-        if (!applied) {
-            log.warn("[ActuatorCommandExecutor] 명령 거부됨: key={}, actuatorType={}, status={}", key, actuatorType, response.status());
+            return ActuatorCommandResult.FAILED;
         }
 
         notificationService.sendActuatorCommandResult(key.getCultivationId(), actuatorType.name(), response, requestedAt);
 
-        return applied;
+        return ActuatorCommandResult.APPLIED;
     }
 
+    // ======================================================================
+
+    private ActuatorCommandResult handleRejection(ActuatorControlKey key, ActuatorType actuatorType, ActuatorState desiredState,
+                                                   Instant requestedAt, FeignException e) {
+
+        ActuatorCommandResponse rejected;
+        try {
+            rejected = objectMapper.readValue(e.contentUTF8(), ActuatorCommandResponse.class);
+        } catch (Exception parseException) {
+            log.warn("[ActuatorCommandExecutor] Feign 호출 실패: key={}, actuatorType={}, desiredState={}", key, actuatorType, desiredState, e);
+            return ActuatorCommandResult.FAILED;
+        }
+
+        log.warn("[ActuatorCommandExecutor] 명령 거부됨: key={}, actuatorType={}, status={}", key, actuatorType, rejected.status());
+        notificationService.sendActuatorCommandResult(key.getCultivationId(), actuatorType.name(), rejected, requestedAt);
+
+        return rejected.status() == ActuatorCommandStatus.REJECTED_CONFLICT
+                ? ActuatorCommandResult.REJECTED_CONFLICT
+                : ActuatorCommandResult.FAILED;
+    }
 }
