@@ -1,19 +1,10 @@
 package site.yesaido.ruleengine_server.engine.dto.actuator;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public sealed interface ActuatorControlState {
 
-import java.time.OffsetDateTime;
+    record None() implements ActuatorControlState {}
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ActuatorControlState {
+    record Pending() implements ActuatorControlState {}
 
-    private ActuatorDirection actuatorDirection;
-
-    private OffsetDateTime exceededSince;
+    record Active(ActuatorType actuatorType) implements ActuatorControlState {}
 }
