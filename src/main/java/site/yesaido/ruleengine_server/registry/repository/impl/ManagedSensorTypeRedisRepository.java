@@ -32,6 +32,9 @@ public class ManagedSensorTypeRedisRepository implements ManagedSensorTypeReposi
     @Override
     public Set<String> findAll() {
         Set<Object> members = redisTemplate.opsForSet().members(KEY);
+        if (members == null) {
+            return Set.of();
+        }
 
         return members.stream()
                 .map(String::valueOf)

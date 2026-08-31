@@ -12,16 +12,18 @@ import site.yesaido.ruleengine_server.engine.dto.actuator.*;
 import java.time.Instant;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ActuatorCommandExecutorTest {
 
     @Mock
-    private ActuatorControlStateService actuatorControlStateService;
-    @Mock
     private DataGeneratorFeignClient dataGeneratorFeignClient;
+
     @Mock
     private NotificationService notificationService;
 
@@ -36,63 +38,52 @@ class ActuatorCommandExecutorTest {
     }
 
     @Test
-    void test_requestDirectionChange_fromNone_toIncreasing_success() {
+    void test_sendCommand_whenApplied_returnsTrue() {
         when(dataGeneratorFeignClient.controlActuator(any(), any(), any()))
                 .thenReturn(new ActuatorCommandResponse(
                         UUID.randomUUID(), UUID.randomUUID(),
-                        ActuatorCommandStatus.APPLIED, ActuatorState.ON, Instant.now()
-                ));
+                        ActuatorCommandStatus.APPLIED, ActuatorState.ON, Instant.now()));
 
-        actuatorCommandExecutor.requestDirectionChange(key, ActuatorDirection.NONE, ActuatorDirection.INCREASING);
+        boolean result = actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.ON);
 
-        // PENDING -> INCREASING 순으로 갱신됐는지
-        verify(actuatorControlStateService).updateDirection(key, ActuatorDirection.PENDING);
-        verify(actuatorControlStateService).updateDirection(key, ActuatorDirection.INCREASING);
-        // Feign은 한 번만 호출(반대 방향 전환 없으므로 OFF 요청 없음)
-        verify(dataGeneratorFeignClient, times(1)).controlActuator(any(), any(), any());
+        assertTrue(result);
+        verify(dataGeneratorFeignClient, times(1)).controlActuator(eq(1L), eq("HEATER"), any());
+        verify(notificationService, times(1)).sendActuatorCommandResult(eq(1L), eq("HEATER"), any(), any());
     }
 
     @Test
-    void test_requestDirectionChange_oppositeDirection_sendsOffThenOn() {
+    void test_sendCommand_whenRejected_returnsFalseButStillNotifies() {
         when(dataGeneratorFeignClient.controlActuator(any(), any(), any()))
                 .thenReturn(new ActuatorCommandResponse(
                         UUID.randomUUID(), UUID.randomUUID(),
-                        ActuatorCommandStatus.APPLIED, ActuatorState.ON, Instant.now()
-                ));
+                        ActuatorCommandStatus.REJECTED_CONFLICT, ActuatorState.OFF, null));
 
-        actuatorCommandExecutor.requestDirectionChange(key, ActuatorDirection.DECREASING, ActuatorDirection.INCREASING);
+        boolean result = actuatorCommandExecutor.sendCommand(key, ActuatorType.COOLER, ActuatorState.ON);
 
-        // OFF(COOLER) + ON(HEATER) 두 번 호출됐는지
-        verify(dataGeneratorFeignClient, times(2)).controlActuator(any(), any(), any());
+        assertFalse(result);
+        verify(notificationService, times(1)).sendActuatorCommandResult(eq(1L), eq("COOLER"), any(), any());
     }
 
     @Test
-    void test_requestDirectionChange_whenOffFails_rollsBackWithoutCallingOn() {
+    void test_sendCommand_whenFeignThrows_returnsFalseWithoutNotifying() {
         when(dataGeneratorFeignClient.controlActuator(any(), any(), any()))
-                .thenReturn(new ActuatorCommandResponse(
-                        UUID.randomUUID(), UUID.randomUUID(),
-                        ActuatorCommandStatus.REJECTED_CONFLICT, ActuatorState.ON, null
-                ));
+                .thenThrow(new RuntimeException("connection refused"));
 
-        actuatorCommandExecutor.requestDirectionChange(key, ActuatorDirection.DECREASING, ActuatorDirection.INCREASING);
+        boolean result = actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF);
 
-        // OFF 실패 시 ON을 시도하면 안 됨 -> 딱 1번만 호출
-        verify(dataGeneratorFeignClient, times(1)).controlActuator(any(), any(), any());
-        verify(actuatorControlStateService).updateDirection(key, ActuatorDirection.DECREASING); // 롤백
+        assertFalse(result);
+        verifyNoInteractions(notificationService);
     }
 
     @Test
-    void test_requestDirectionChange_toNone_sendsOffOnly() {
+    void test_sendCommand_usesActuatorTypeNameAsPathVariable() {
         when(dataGeneratorFeignClient.controlActuator(any(), any(), any()))
                 .thenReturn(new ActuatorCommandResponse(
                         UUID.randomUUID(), UUID.randomUUID(),
-                        ActuatorCommandStatus.APPLIED, ActuatorState.OFF, Instant.now()
-                ));
+                        ActuatorCommandStatus.APPLIED, ActuatorState.ON, Instant.now()));
 
-        actuatorCommandExecutor.requestDirectionChange(key, ActuatorDirection.INCREASING, ActuatorDirection.NONE);
+        actuatorCommandExecutor.sendCommand(key, ActuatorType.DEHUMIDIFIER, ActuatorState.ON);
 
-        verify(dataGeneratorFeignClient, times(1)).controlActuator(any(), any(), any());
-        verify(actuatorControlStateService).updateDirection(key, ActuatorDirection.NONE);
-        verify(actuatorControlStateService).clearExceededSince(key);
+        verify(dataGeneratorFeignClient).controlActuator(eq(1L), eq("DEHUMIDIFIER"), any());
     }
 }
