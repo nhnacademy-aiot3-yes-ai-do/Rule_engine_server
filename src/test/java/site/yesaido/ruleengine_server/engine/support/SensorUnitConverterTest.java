@@ -48,7 +48,8 @@ class SensorUnitConverterTest {
 
     @Test
     void test_convert_whenUnsupportedUnitPair_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
-                () -> SensorUnitConverter.convert(BigDecimal.valueOf(50), "%", "ppm"));
+        BigDecimal value = BigDecimal.valueOf(50);
+
+        assertThrows(IllegalArgumentException.class, () -> SensorUnitConverter.convert(value, "%", "ppm"));
     }
 }

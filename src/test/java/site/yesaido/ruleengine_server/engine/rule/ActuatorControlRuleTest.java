@@ -88,17 +88,17 @@ class ActuatorControlRuleTest {
 
     @Test
     void test_evaluate_alwaysWritesToAverageCache_regardlessOfState() {
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Pending());
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.Pending());
 
         rule.evaluate(sensorData, thresholdInfo);
 
         verify(sensorValueAverageService, times(1))
-                .put(eq(new SensorValueKey(CULTIVATION_ID, SENSOR_TYPE, sensorData.getDeviceEui())), eq(sensorData.getValue()));
+                .put(new SensorValueKey(CULTIVATION_ID, SENSOR_TYPE, sensorData.getDeviceEui()), sensorData.getValue());
     }
 
     @Test
     void test_evaluate_whenPending_doesNothing() {
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Pending());
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.Pending());
 
         rule.evaluate(sensorData, thresholdInfo);
 
@@ -110,7 +110,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenNoneAndWithinRange_clearsTargetSinceAndDoesNothing() {
         SensorDataDto normalData = withValue(sensorData, BigDecimal.valueOf(24.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.None());
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.None());
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(24.0));
 
         rule.evaluate(normalData, thresholdInfo);
@@ -123,7 +123,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenNoneAndFirstExceeded_recordsTargetSinceWithoutExecuting() {
         SensorDataDto belowMinData = withValue(sensorData, BigDecimal.valueOf(15.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.None());
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.None());
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
         when(actuatorTargetSinceService.getTargetSince(key)).thenReturn(null);
 
@@ -137,7 +137,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenNoneAndNotYetSustained_doesNothing() {
         SensorDataDto belowMinData = withValue(sensorData, BigDecimal.valueOf(15.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.None());
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.None());
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
         when(actuatorTargetSinceService.getTargetSince(key))
                 .thenReturn(new ActuatorTargetSinceService.TargetSince(ActuatorType.HEATER, Instant.now().minusSeconds(10)));
@@ -152,7 +152,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenNoneAndSustainedLongEnough_startsSuccessfully() {
         SensorDataDto belowMinData = withValue(sensorData, BigDecimal.valueOf(15.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.None());
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.None());
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
         when(actuatorTargetSinceService.getTargetSince(key))
                 .thenReturn(new ActuatorTargetSinceService.TargetSince(ActuatorType.HEATER, Instant.now().minusSeconds(90)));
@@ -168,7 +168,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenNoneAndSustainedButCommandFails_revertsToNone() {
         SensorDataDto belowMinData = withValue(sensorData, BigDecimal.valueOf(15.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.None());
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.None());
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
         when(actuatorTargetSinceService.getTargetSince(key))
                 .thenReturn(new ActuatorTargetSinceService.TargetSince(ActuatorType.HEATER, Instant.now().minusSeconds(90)));
@@ -185,7 +185,7 @@ class ActuatorControlRuleTest {
     void test_evaluate_whenStartRejectedWithConflict_correctsStateToOppositeType() {
         // 재시작 등으로 상태를 NONE으로 잘못 알고 있었는데, 실제로는 반대쪽(COOLER)이 켜져 있던 경우
         SensorDataDto belowMinData = withValue(sensorData, BigDecimal.valueOf(15.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.None());
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.None());
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
         when(actuatorTargetSinceService.getTargetSince(key))
                 .thenReturn(new ActuatorTargetSinceService.TargetSince(ActuatorType.HEATER, Instant.now().minusSeconds(90)));
@@ -205,7 +205,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenActiveAndStillNeeded_doesNothing() {
         SensorDataDto belowMinData = withValue(sensorData, BigDecimal.valueOf(15.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(15.0));
 
         rule.evaluate(belowMinData, thresholdInfo);
@@ -217,7 +217,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenActiveAndPastMidpoint_stopsImmediately() {
         SensorDataDto recoveredData = withValue(sensorData, BigDecimal.valueOf(27.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(27.0));
         when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(ActuatorCommandResult.APPLIED);
 
@@ -230,7 +230,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenActiveAndOppositeNeeded_stopsCurrentOnlyWithoutStartingOpposite() {
         SensorDataDto exceedsMaxData = withValue(sensorData, BigDecimal.valueOf(35.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(35.0));
         when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(ActuatorCommandResult.APPLIED);
 
@@ -244,7 +244,7 @@ class ActuatorControlRuleTest {
     @Test
     void test_evaluate_whenStopCommandFails_revertsToOriginalActiveType() {
         SensorDataDto recoveredData = withValue(sensorData, BigDecimal.valueOf(27.0));
-        when(actuatorControlStateService.getState(eq(key))).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
+        when(actuatorControlStateService.getState(key)).thenReturn(new ActuatorControlState.Active(ActuatorType.HEATER));
         when(sensorValueAverageService.getAverage(CULTIVATION_ID, SENSOR_TYPE)).thenReturn(BigDecimal.valueOf(27.0));
         when(actuatorCommandExecutor.sendCommand(key, ActuatorType.HEATER, ActuatorState.OFF)).thenReturn(ActuatorCommandResult.FAILED);
 
