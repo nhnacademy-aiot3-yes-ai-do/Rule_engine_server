@@ -7,8 +7,7 @@ import site.yesaido.ruleengine_server.engine.dto.actuator.SensorValueKey;
 import java.math.BigDecimal;
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SensorValueAverageServiceTest {
 
@@ -32,7 +31,7 @@ class SensorValueAverageServiceTest {
 
         BigDecimal average = service.getAverage(CULTIVATION_ID, SENSOR_TYPE);
 
-        assertTrue(BigDecimal.valueOf(23.7).compareTo(average) == 0);
+        assertEquals(0, BigDecimal.valueOf(23.7).compareTo(average));
     }
 
     @Test
@@ -44,7 +43,7 @@ class SensorValueAverageServiceTest {
 
         BigDecimal average = service.getAverage(CULTIVATION_ID, SENSOR_TYPE);
 
-        assertTrue(BigDecimal.valueOf(31.0).compareTo(average) == 0);
+        assertEquals(0, BigDecimal.valueOf(31.0).compareTo(average));
     }
 
     @Test
@@ -57,7 +56,7 @@ class SensorValueAverageServiceTest {
 
         BigDecimal average = service.getAverage(CULTIVATION_ID, SENSOR_TYPE);
 
-        assertTrue(BigDecimal.valueOf(40.0).compareTo(average) == 0);
+        assertEquals(0, BigDecimal.valueOf(40.0).compareTo(average));
     }
 
     @Test
@@ -70,7 +69,7 @@ class SensorValueAverageServiceTest {
 
         BigDecimal average = service.getAverage(CULTIVATION_ID, SENSOR_TYPE);
 
-        assertTrue(BigDecimal.valueOf(30.0).compareTo(average) == 0);
+        assertEquals(0, BigDecimal.valueOf(30.0).compareTo(average));
     }
 
     @Test
