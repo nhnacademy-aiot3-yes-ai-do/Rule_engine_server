@@ -17,27 +17,15 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class SensorRange {
 
-    /**
-     * 센서 종류 (예: TEMPERATURE, HUMIDITY 등)
-     */
     @NotBlank
     private String sensorType;
 
-    /**
-     * 센서 측정 단위 (예: °C, %, ppm 등)
-     */
     @NotBlank
     private String unit;
 
-    /**
-     * 임계값 최솟값 (적정 범위 하한)
-     */
     @NotNull
     private BigDecimal minValue;
 
-    /**
-     * 임계값 최댓값 (적정 범위 상한)
-     */
     @NotNull
     private BigDecimal maxValue;
 

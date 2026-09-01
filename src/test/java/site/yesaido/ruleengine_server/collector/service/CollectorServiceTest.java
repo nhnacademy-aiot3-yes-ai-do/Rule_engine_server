@@ -17,6 +17,7 @@ import site.yesaido.ruleengine_server.collector.support.SensorDataParser;
 import site.yesaido.ruleengine_server.collector.support.SensorDataValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -54,7 +55,7 @@ class CollectorServiceTest {
 
         collectorService.ingest("mushroom/a/b/c/d", "{}");
 
-        verify(sensorDataValidator, never()).isValid(any(SensorDataDto.class));
+        verify(sensorDataValidator, never()).validate(any(SensorDataDto.class));
     }
 
     @Test
@@ -65,7 +66,7 @@ class CollectorServiceTest {
 
         collectorService.ingest("mushroom/a/b/c/d/e", "{}");
 
-        verify(sensorDataValidator, never()).isValid(any(SensorDataDto.class));
+        verify(sensorDataValidator, never()).validate(any(SensorDataDto.class));
     }
 
     @Test
@@ -76,7 +77,7 @@ class CollectorServiceTest {
 
         when(sensorDataParser.supports(topic)).thenReturn(true);
         when(sensorDataParser.parse(topic, payload)).thenReturn(List.of(dto));
-        when(sensorDataValidator.isValid(dto)).thenReturn(false);
+        when(sensorDataValidator.validate(dto)).thenReturn(Optional.empty());
 
         collectorService.ingest(topic, payload);
 
@@ -91,7 +92,7 @@ class CollectorServiceTest {
 
         when(sensorDataParser.supports(topic)).thenReturn(true);
         when(sensorDataParser.parse(topic, payload)).thenReturn(List.of(dto));
-        when(sensorDataValidator.isValid(dto)).thenReturn(true);
+        when(sensorDataValidator.validate(dto)).thenReturn(Optional.of(dto));
 
         collectorService.ingest(topic, payload);
 

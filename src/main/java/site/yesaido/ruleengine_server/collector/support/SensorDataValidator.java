@@ -25,12 +25,11 @@ public class SensorDataValidator {
     /**
      * 파싱이 완료된 센서 데이터 {@link SensorDataDto}에 대한 검증을 수행하는 메서드입니다.<br>
      * - 등록되어 있는 센서인지 확인합니다.<br>
-     * - 물리적으로 유효한 범위인지 확인합니다.<br>
-     * - 검증을 통과한 경우 {@code cultivationId}를 채워 넣습니다.
+     * - 센서 값이 유효한지(not null) 확인합니다.<br>
      * @param sensorDataDto 검증 대상에 해당하는 센서 데이터
-     * @return {@code true} 검증 대상 센서 데이터가 검증을 통과한 경우
+     * @return 검증을 통과한 경우 {@code cultivationId}가 채워진 {@link SensorDataDto}를 담은 {@link Optional} (통과하지 못한 경우 빈 {@link Optional})
      */
-    public boolean isValid(SensorDataDto sensorDataDto) {
+    public Optional<SensorDataDto> validate(SensorDataDto sensorDataDto) {
 
         String deviceEui = sensorDataDto.getDeviceEui();
         String sensorType = sensorDataDto.getSensorType();
@@ -39,24 +38,22 @@ public class SensorDataValidator {
 
         if (!managedSensorTypeService.isManaged(sensorType)) {
             log.warn("미관리 센서 타입 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
-            return false;
+            return Optional.empty();
         }
 
         if (value == null) {
             log.warn("센서 값이 null인 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
-            return false;
+            return Optional.empty();
         }
 
         Optional<SensorInfoDto> optionalSensorInfoDto = sensorInfoService.findSensorInfo(deviceEui, sensorType, unit);
 
         if (optionalSensorInfoDto.isEmpty()) {
             log.warn("미등록 센서 데이터 폐기: deviceEui={}, sensorType={}", deviceEui, sensorType);
-            return false;
+            return Optional.empty();
         }
 
-        sensorDataDto.setCultivationId(optionalSensorInfoDto.get().getCultivationId());
-
-        return true;
+        return Optional.of(sensorDataDto.withCultivationId(optionalSensorInfoDto.get().getCultivationId()));
     }
 
 }

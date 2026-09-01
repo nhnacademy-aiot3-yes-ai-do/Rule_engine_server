@@ -25,21 +25,12 @@ import java.util.List;
 @AllArgsConstructor
 public class ThresholdInfoEvent {
 
-    /**
-     * 재배 환경 식별자(ID)
-     */
     @NotNull
     private Long cultivationId;
 
-    /**
-     * 설정할 센서 임계값 범위 목록
-     */
     @NotNull
     private List<SensorRange> sensorRangeList;
 
-    /**
-     * 이벤트 발생 시각
-     */
     @NotNull
     private OffsetDateTime occurredAt;
 

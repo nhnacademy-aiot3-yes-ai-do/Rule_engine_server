@@ -20,15 +20,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class ThresholdInfoDto {
 
-    /**
-     * 재배 환경 식별자(ID)
-     */
     @NotNull
     private Long cultivationId;
 
-    /**
-     * 센서 타입 및 단위별 적정 범위 매핑 맵 (Key: "{sensorType}_{unit}")
-     */
     private Map<String, SensorRange> ranges = new HashMap<>();
 
     /**
