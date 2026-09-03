@@ -14,10 +14,10 @@ import java.util.UUID;
 @ToString
 public class AutomationStateChangedEvent {
 
-    UUID eventId;
-    long cultivationId;
-    String actuatorType;
-    String message;
-    boolean enabled;
-    OffsetDateTime occurredAt;
+    private UUID eventId;
+    private long cultivationId;
+    private String actuatorType;
+    private String message;
+    private boolean enabled;
+    private OffsetDateTime occurredAt;
 }

@@ -10,8 +10,6 @@ import java.time.OffsetDateTime;
  * MQTT 구독을 통해 수신한 메세지에서 필요한 값만 추출하여 사용합니다.
  */
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class SensorDataDto {
@@ -38,8 +36,16 @@ public class SensorDataDto {
 
     public SensorDataDto(String place, String location,
                          String deviceModel, String deviceName, String deviceEui,
-                         String sensorType,
-                         BigDecimal value, OffsetDateTime time, String unit) {
+                         String sensorType, BigDecimal value, OffsetDateTime time, String unit) {
         this(place, location, deviceModel, deviceName, deviceEui, sensorType, value, time, unit, null);
+    }
+
+    public SensorDataDto withCultivationId(Long cultivationId) {
+        return new SensorDataDto(
+                place, location,
+                deviceModel, deviceName, deviceEui,
+                sensorType, value, time, unit,
+                cultivationId
+        );
     }
 }

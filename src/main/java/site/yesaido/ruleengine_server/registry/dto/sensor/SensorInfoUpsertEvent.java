@@ -19,57 +19,30 @@ import java.time.ZoneOffset;
 @AllArgsConstructor
 public class SensorInfoUpsertEvent {
 
-    /**
-     * 센서가 속한 재배 환경의 식별자(ID)
-     */
     @NotNull
     private Long cultivationId;
 
-    /**
-     * 센서 설치 대분류 위치 (예: 하우스A)
-     */
     @NotBlank
     private String location;
 
-    /**
-     * 센서 설치 상세 위치 (예: 1번 베드)
-     */
     @NotBlank
     private String locationDetail;
 
-    /**
-     * 센서 디바이스 모델명
-     */
     @NotBlank
     private String deviceModel;
 
-    /**
-     * 센서 디바이스 이름
-     */
     @NotBlank
     private String deviceName;
 
-    /**
-     * 센서 디바이스의 EUI (고유 식별자)
-     */
     @NotBlank
     private String deviceEui;
 
-    /**
-     * 센서 종류 (예: TEMPERATURE, HUMIDITY 등)
-     */
     @NotBlank
     private String sensorType;
 
-    /**
-     * 센서 측정 단위 (예: °C, %, ppm 등)
-     */
     @NotBlank
     private String unit;
 
-    /**
-     * 이벤트 발생 시각
-     */
     @NotNull
     OffsetDateTime occurredAt;
 

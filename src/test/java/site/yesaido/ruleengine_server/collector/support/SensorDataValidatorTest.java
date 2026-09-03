@@ -60,10 +60,10 @@ class SensorDataValidatorTest {
         when(sensorInfoService.findSensorInfo(anyString(), anyString(), anyString()))
                 .thenReturn(Optional.ofNullable(sensorInfoDto));
 
-        boolean result = validator.isValid(sensorDataDto);
+        Optional<SensorDataDto> result = validator.validate(sensorDataDto);
 
-        Assertions.assertTrue(result);
-        Assertions.assertEquals(sensorDataDto.getCultivationId(), sensorInfoDto.getCultivationId());
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertEquals(sensorInfoDto.getCultivationId(), result.get().getCultivationId());
         verify(managedSensorTypeService, times(1)).isManaged(anyString());
         verify(sensorInfoService, times(1)).findSensorInfo(anyString(), anyString(), anyString());
     }
@@ -73,9 +73,9 @@ class SensorDataValidatorTest {
     void test_isValid_returnFalse_sensorTypeNotManaged() {
         when(managedSensorTypeService.isManaged(anyString())).thenReturn(false);
 
-        boolean result = validator.isValid(sensorDataDto);
+        Optional<SensorDataDto> result = validator.validate(sensorDataDto);
 
-        Assertions.assertFalse(result);
+        Assertions.assertTrue(result.isEmpty());
         verify(managedSensorTypeService, times(1)).isManaged(anyString());
         verify(sensorInfoService, never()).findSensorInfo(anyString(), anyString(), anyString());
     }
@@ -85,10 +85,15 @@ class SensorDataValidatorTest {
     void test_isValid_returnFalse_nullValue() {
         when(managedSensorTypeService.isManaged(anyString())).thenReturn(true);
 
-        sensorDataDto.setValue(null);
-        boolean result = validator.isValid(sensorDataDto);
+        SensorDataDto nullValueDto = new SensorDataDto(
+                "장소", "위치",
+                "device_model", "device_name", "device_eui",
+                "TEMPERATURE",
+                null, OffsetDateTime.now(ZoneOffset.UTC).withOffsetSameInstant(ZoneOffset.ofHours(9)), "°C"
+        );
+        Optional<SensorDataDto> result = validator.validate(nullValueDto);
 
-        Assertions.assertFalse(result);
+        Assertions.assertTrue(result.isEmpty());
         verify(managedSensorTypeService, times(1)).isManaged(anyString());
         verify(sensorInfoService, never()).findSensorInfo(anyString(), anyString(), anyString());
     }
@@ -99,9 +104,9 @@ class SensorDataValidatorTest {
         when(managedSensorTypeService.isManaged(anyString())).thenReturn(true);
         when(sensorInfoService.findSensorInfo(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
 
-        boolean result = validator.isValid(sensorDataDto);
+        Optional<SensorDataDto> result = validator.validate(sensorDataDto);
 
-        Assertions.assertFalse(result);
+        Assertions.assertTrue(result.isEmpty());
         verify(managedSensorTypeService, times(1)).isManaged(anyString());
         verify(sensorInfoService, times(1)).findSensorInfo(anyString(), anyString(), anyString());
     }
