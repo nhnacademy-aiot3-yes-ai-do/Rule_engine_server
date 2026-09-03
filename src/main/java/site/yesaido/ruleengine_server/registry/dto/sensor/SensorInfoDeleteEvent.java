@@ -16,33 +16,18 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class SensorInfoDeleteEvent {
 
-    /**
-     * 센서가 속한 재배 환경의 식별자(ID)
-     */
     @NotNull
     private Long cultivationId;
 
-    /**
-     * 센서 디바이스의 EUI (고유 식별자)
-     */
     @NotBlank
     private String deviceEui;
 
-    /**
-     * 센서 종류 (예: TEMPERATURE, HUMIDITY 등)
-     */
     @NotBlank
     private String sensorType;
 
-    /**
-     * 센서 측정 단위 (예: °C, %, ppm 등)
-     */
     @NotBlank
     private String unit;
 
-    /**
-     * 이벤트 발생 시각
-     */
     @NotNull
     OffsetDateTime occurredAt;
 }

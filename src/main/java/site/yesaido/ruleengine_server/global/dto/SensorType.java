@@ -11,29 +11,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SensorType {
 
-    /**
-     * 온도 센서
-     */
     TEMPERATURE("온도"),
 
-    /**
-     * 습도 센서
-     */
     HUMIDITY("습도"),
 
-    /**
-     * 이산화탄소 센서
-     */
     CO2("이산화탄소"),
 
-    /**
-     * 조도 센서
-     */
     LIGHT("조도");
 
-    /**
-     * 센서 타입의 한글 표기명
-     */
     private final String koreanName;
 
     /**

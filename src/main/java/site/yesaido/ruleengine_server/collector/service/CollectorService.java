@@ -36,7 +36,6 @@ public class CollectorService {
      * @param payload 수신된 페이로드
      */
     public void ingest(String topic, String payload) {
-//        log.debug("[CollectorService] 메세지 수신 완료: topic={}, payload={}", topic, payload);
 
         SensorDataParser parser = sensorDataParserList.stream()
                 .filter(p -> p.supports(topic))
@@ -62,11 +61,11 @@ public class CollectorService {
      * @param sensorDataDto 검증 및 발행 대상에 해당하는 센서 데이터 DTO
      */
     private void validateAndPublish(SensorDataDto sensorDataDto) {
-        if (!sensorDataValidator.isValid(sensorDataDto)) {
-            log.warn("[Collector - Validation] 검증 실패: {}", sensorDataDto);
-            return;
-        }
 
-        eventPublisher.publishEvent(new SensorDataReadyEvent(sensorDataDto));
+        sensorDataValidator.validate(sensorDataDto)
+                .ifPresentOrElse(
+                        sensorData -> eventPublisher.publishEvent(new SensorDataReadyEvent(sensorData)),
+                        () -> log.warn("[Collector - Validation] 검증 실패: {}", sensorDataDto)
+                );
     }
 }

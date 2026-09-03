@@ -1,8 +1,9 @@
 package site.yesaido.ruleengine_server.global.config;
 
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.InfluxDBClientFactory;
-import com.influxdb.client.InfluxDBClientOptions;
+import com.influxdb.client.*;
+import com.influxdb.client.write.events.WriteErrorEvent;
+import com.influxdb.client.write.events.WriteSuccessEvent;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import site.yesaido.ruleengine_server.engine.support.SensorValuePointMapper;
 /**
  * InfluxDB 클라이언트({@link InfluxDBClient}) 및 데이터 매핑 관련 빈을 구성하는 설정 클래스입니다.
  */
+@Slf4j
 @Configuration
 @EnableConfigurationProperties(InfluxProperties.class)
 public class InfluxConfig {
@@ -39,6 +41,31 @@ public class InfluxConfig {
 
         return InfluxDBClientFactory.create(options);
     }
+
+    @Bean(destroyMethod = "close")
+    public WriteApi influxWriteApi(InfluxDBClient influxDBClient) {
+
+        WriteOptions writeOptions = WriteOptions.builder()
+                .batchSize(1000)
+                .flushInterval(3000)
+                .build();
+
+        WriteApi writeApi = influxDBClient.makeWriteApi(writeOptions);
+        writeApi.listenEvents(
+                WriteErrorEvent.class,
+                event -> log.error("[InfluxDB] 배치 write 실패", event.getThrowable())
+        );
+        writeApi.listenEvents(
+                WriteSuccessEvent.class,
+                event -> {
+                    int pointCount = event.getLineProtocol().split("\n").length;
+                    log.info("[InfluxDB] 배치 flush 성공: pointCount={}", pointCount);
+                }
+        );
+
+        return writeApi;
+    }
+
 
     @Bean
     public SensorValuePointMapper sensorValuePointMapper() {
