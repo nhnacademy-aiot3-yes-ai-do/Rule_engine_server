@@ -1,7 +1,6 @@
 package site.yesaido.ruleengine_server.engine.service;
 
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.WriteApiBlocking;
+import com.influxdb.client.WriteApi;
 import com.influxdb.client.write.Point;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,10 +23,7 @@ import static org.mockito.Mockito.*;
 class InfluxServiceTest {
 
     @Mock
-    private InfluxDBClient influxDBClient;
-
-    @Mock
-    private WriteApiBlocking writeApiBlocking;
+    private WriteApi writeApi;
 
     @Mock
     private InfluxProperties properties;
@@ -60,19 +56,17 @@ class InfluxServiceTest {
         when(properties.getBucket()).thenReturn("sensor-data");
         when(properties.getOrg()).thenReturn("yes-nhn");
         when(pointMapper.toPoint(event)).thenReturn(point);
-        when(influxDBClient.getWriteApiBlocking()).thenReturn(writeApiBlocking);
 
         influxService.save(event);
 
-        verify(writeApiBlocking, times(1)).writePoint("sensor-data", "yes-nhn", point);
+        verify(writeApi, times(1)).writePoint("sensor-data", "yes-nhn", point);
     }
 
     @Test
-    void test_save_whenWriteFails_doesNotThrow() {
+    void test_save_whenSubmitFails_doesNotThrow() {
         when(pointMapper.toPoint(event)).thenReturn(point);
-        when(influxDBClient.getWriteApiBlocking()).thenReturn(writeApiBlocking);
-        doThrow(new RuntimeException("connection refused"))
-                .when(writeApiBlocking).writePoint(any(), any(), any());
+        doThrow(new RuntimeException("buffer limit exceeded"))
+                .when(writeApi).writePoint(any(), any(), any());
 
         Assertions.assertDoesNotThrow(() -> influxService.save(event));
     }
@@ -80,10 +74,9 @@ class InfluxServiceTest {
     @Test
     void test_save_whenPointMapperFails_doesNotThrow() {
         when(pointMapper.toPoint(event)).thenThrow(new IllegalArgumentException("invalid point"));
-        when(influxDBClient.getWriteApiBlocking()).thenReturn(writeApiBlocking);
 
         Assertions.assertDoesNotThrow(() -> influxService.save(event));
 
-        verify(writeApiBlocking, never()).writePoint(any(), any(), any());
+        verify(writeApi, never()).writePoint(any(), any(), any());
     }
 }
