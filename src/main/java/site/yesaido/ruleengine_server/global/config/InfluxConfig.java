@@ -2,6 +2,7 @@ package site.yesaido.ruleengine_server.global.config;
 
 import com.influxdb.client.*;
 import com.influxdb.client.write.events.WriteErrorEvent;
+import com.influxdb.client.write.events.WriteSuccessEvent;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -53,6 +54,13 @@ public class InfluxConfig {
         writeApi.listenEvents(
                 WriteErrorEvent.class,
                 event -> log.error("[InfluxDB] 배치 write 실패", event.getThrowable())
+        );
+        writeApi.listenEvents(
+                WriteSuccessEvent.class,
+                event -> {
+                    int pointCount = event.getLineProtocol().split("\n").length;
+                    log.info("[InfluxDB] 배치 flush 성공: pointCount={}", pointCount);
+                }
         );
 
         return writeApi;
