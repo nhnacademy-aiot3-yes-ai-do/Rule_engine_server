@@ -7,7 +7,8 @@ import site.yesaido.ruleengine_server.engine.dto.actuator.SensorValueKey;
 import java.math.BigDecimal;
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class SensorValueAverageServiceTest {
 
