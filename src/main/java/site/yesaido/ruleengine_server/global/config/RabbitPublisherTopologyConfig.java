@@ -1,9 +1,12 @@
 package site.yesaido.ruleengine_server.global.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import site.yesaido.common.rabbitmq.DeadLetterQueues;
+import site.yesaido.common.rabbitmq.RabbitDeadLetterProperties;
 
 @Configuration
 public class RabbitPublisherTopologyConfig {
@@ -18,19 +21,13 @@ public class RabbitPublisherTopologyConfig {
     private String exchangeToNotification;
 
     @Bean
-    public Queue notificationThresholdQueue() {
-        return QueueBuilder.durable(notificationThresholdQueueName)
-                .withArgument("x-dead-letter-exchange", "yes-nhn.dlx")
-                .withArgument("x-dead-letter-routing-key", "yes-nhn.dlq")
-                .build();
+    public Queue notificationThresholdQueue(RabbitDeadLetterProperties dlProps) {
+        return DeadLetterQueues.durableWithDeadLetter(notificationThresholdQueueName, dlProps).build();
     }
 
     @Bean
-    public Queue notificationActionQueue() {
-        return QueueBuilder.durable(notificationActionQueueName)
-                .withArgument("x-dead-letter-exchange", "yes-nhn.dlx")
-                .withArgument("x-dead-letter-routing-key", "yes-nhn.dlq")
-                .build();
+    public Queue notificationActionQueue(RabbitDeadLetterProperties dlProps) {
+        return DeadLetterQueues.durableWithDeadLetter(notificationActionQueueName, dlProps).build();
     }
 
     @Bean
@@ -39,14 +36,16 @@ public class RabbitPublisherTopologyConfig {
     }
 
     @Bean
-    public Binding notificationThresholdBinding(Queue notificationThresholdQueue, DirectExchange notificationExchange) {
+    public Binding notificationThresholdBinding(@Qualifier("notificationThresholdQueue") Queue notificationThresholdQueue,
+                                                DirectExchange notificationExchange) {
         return BindingBuilder.bind(notificationThresholdQueue)
                 .to(notificationExchange)
                 .with(notificationThresholdQueueName);
     }
 
     @Bean
-    public Binding notificationActionBinding(Queue notificationActionQueue, DirectExchange notificationExchange) {
+    public Binding notificationActionBinding(@Qualifier("notificationActionQueue") Queue notificationActionQueue,
+                                             DirectExchange notificationExchange) {
         return BindingBuilder.bind(notificationActionQueue)
                 .to(notificationExchange)
                 .with(notificationActionQueueName);

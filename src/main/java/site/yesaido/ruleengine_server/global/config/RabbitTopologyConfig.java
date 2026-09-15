@@ -1,14 +1,20 @@
 package site.yesaido.ruleengine_server.global.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import site.yesaido.common.rabbitmq.DeadLetterQueues;
+import site.yesaido.common.rabbitmq.DeadLetterTopologyConfiguration;
+import site.yesaido.common.rabbitmq.RabbitDeadLetterProperties;
 
 /**
  * RabbitMQ의 Exchange, Queue 및 Routing Key 바인딩 등 토폴로지를 구성하는 설정 클래스입니다.
  */
 @Configuration
+@Import(DeadLetterTopologyConfiguration.class)
 public class RabbitTopologyConfig {
 
     @Value("${custom-rabbitmq.exchange.from-cultivation}")
@@ -26,28 +32,26 @@ public class RabbitTopologyConfig {
     }
 
     @Bean
-    public Queue thresholdInfoQueue() {
-        return QueueBuilder.durable(thresholdInfoQueueName)
-                .withArgument("x-dead-letter-exchange", "yes-nhn.dlx")
-                .build();
+    public Queue thresholdInfoQueue(RabbitDeadLetterProperties dlProps) {
+        return DeadLetterQueues.durableWithDeadLetter(thresholdInfoQueueName, dlProps).build();
     }
 
     @Bean
-    public Queue sensorInfoQueue() {
-        return QueueBuilder.durable(sensorInfoQueueName)
-                .withArgument("x-dead-letter-exchange", "yes-nhn.dlx")
-                .build();
+    public Queue sensorInfoQueue(RabbitDeadLetterProperties dlProps) {
+        return DeadLetterQueues.durableWithDeadLetter(sensorInfoQueueName, dlProps).build();
     }
 
     @Bean
-    public Binding cultivationInfoBinding(Queue thresholdInfoQueue, TopicExchange sensorExchange) {
+    public Binding cultivationInfoBinding(@Qualifier("thresholdInfoQueue") Queue thresholdInfoQueue,
+                                          TopicExchange sensorExchange) {
         return BindingBuilder.bind(thresholdInfoQueue)
                 .to(sensorExchange)
                 .with("threshold.*");
     }
 
     @Bean
-    public Binding sensorInfoBinding(Queue sensorInfoQueue, TopicExchange sensorExchange) {
+    public Binding sensorInfoBinding(@Qualifier("sensorInfoQueue") Queue sensorInfoQueue,
+                                     TopicExchange sensorExchange) {
         return BindingBuilder.bind(sensorInfoQueue)
                 .to(sensorExchange)
                 .with("sensor.*");
