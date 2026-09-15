@@ -11,7 +11,6 @@ import site.yesaido.ruleengine_server.engine.dto.ThresholdStatus;
 import site.yesaido.ruleengine_server.engine.dto.ThresholdStatusChangedEvent;
 import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorCommandResponse;
 import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorCommandStatus;
-import site.yesaido.ruleengine_server.engine.dto.actuator.ActuatorState;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
