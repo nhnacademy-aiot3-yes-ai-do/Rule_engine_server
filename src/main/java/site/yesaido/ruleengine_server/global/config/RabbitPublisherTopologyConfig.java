@@ -25,12 +25,16 @@ public class RabbitPublisherTopologyConfig {
 
     @Bean
     public Queue notificationThresholdQueue(RabbitDeadLetterProperties dlProps) {
-        return DeadLetterQueues.durableWithDeadLetter(notificationThresholdQueueName, dlProps).build();
+        return DeadLetterQueues.durableWithDeadLetter(notificationThresholdQueueName, dlProps)
+                .withArgument("x-dead-letter-routing-key", dlProps.getQueueName())
+                .build();
     }
 
     @Bean
     public Queue notificationActionQueue(RabbitDeadLetterProperties dlProps) {
-        return DeadLetterQueues.durableWithDeadLetter(notificationActionQueueName, dlProps).build();
+        return DeadLetterQueues.durableWithDeadLetter(notificationActionQueueName, dlProps)
+                .withArgument("x-dead-letter-routing-key", dlProps.getQueueName())
+                .build();
     }
 
     @Bean
